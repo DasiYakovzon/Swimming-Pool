@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
-import { userDocument } from "../user.schema";
+import { UserDocument } from "../user.schema";
 
 export type SubscriptionDocument = Subscription & Document;
 
@@ -10,9 +10,7 @@ export enum SubscriptionType {
     Yearly = "Yearly",
 }
 
-export function getPrice(type: SubscriptionType): number {
-  console.log(type);
-  
+export function getPrice(type: SubscriptionType): number {  
   switch (type) {
     case SubscriptionType.Yearly:
       return 2000;
@@ -37,7 +35,7 @@ export class Subscription {
     EndDate: Date;
 
     @Prop({ type: Types.ObjectId, ref: 'User' })
-    User: Types.ObjectId | userDocument;
+    User: Types.ObjectId | UserDocument;
 }
 
 export const SubscriptionSchema = SchemaFactory.createForClass(Subscription);

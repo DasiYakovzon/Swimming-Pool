@@ -1,13 +1,13 @@
+// user.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 import { Role } from 'src/Roles/Role.enum';
 import { Enrollment } from './Enrollment/enrollment';
 
-export type userDocument = User & Document;
+export type UserDocument = User & Document;
 
 @Schema()
 export class User {
-
     @Prop({ required: true })
     firstName: string;
 
@@ -27,8 +27,7 @@ export class User {
     password: string;
 
     @Prop({ required: true })
-    role: Role
-
+    role: Role;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -18,12 +18,11 @@ import '../css/Home.css';
 import CloseIcon from '@mui/icons-material/Close';
 import WeatherWidget from './WeatherWidget';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
-import { GetCookie, checkIsManager } from '../api/api';
+import { checkIsManager } from '../api/api';
 import AccountMenu from './AccountMenu';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-
 
 function Home() {
     const navigate = useNavigate();
@@ -31,8 +30,7 @@ function Home() {
     const [showModal, setShowModal] = useState(false);
     const [isManager, setIsManager] = useState<boolean>(false);
     const [showAccountMenu, setShowAccountMenu] = useState(true);
-
-
+    const [userChanger, setUserChanger] = useState(0);
     const handleNavigation = (path: string) => {
         navigate(path);
     };
@@ -78,18 +76,22 @@ function Home() {
     }, []);
 
     useEffect(() => {
-        // Check if the user has just signed in successfully
+    // Check if the user has just signed in successfully
         const queryParams = new URLSearchParams(location.search);
         const isSignInSuccess = queryParams.get('success');
+        setUserChanger( userChanger + 1);
 
-        if (isSignInSuccess === 'true') {
-            // Update the isManager state when the user signs in successfully
-            setIsManager(true);
-            navigate('/management');
+        if (isSignInSuccess) {
+            setShowAccountMenu(true);
+            if (isSignInSuccess === 'true') {
+                // Update the isManager state when the user signs in successfully
+                setIsManager(true);
+                navigate('/management');
+            }
         }
-        setShowAccountMenu(true);
         fetchIsManager();
     }, [location.search]);
+
 
     return (
         <Fragment>
@@ -113,7 +115,7 @@ function Home() {
                     label="Sign-In"
                     icon={<LockOutlinedIcon />}
                     style={{ color: '#1976d2' }}
-                    onClick={() => handleNavigation('/sign-in')}
+                    onClick={() => navigate('/sign-in')}
                 />
                 <BottomNavigationAction
                     label="Subscription"
@@ -127,6 +129,7 @@ function Home() {
                     style={{ color: '#1976d2' }}
                     onClick={() => handleNavigation('/courses')}
                 />
+
                 <BottomNavigationAction
                     label="Contact"
                     icon={<ContactSupportIcon />}
@@ -157,7 +160,8 @@ function Home() {
                     style={{ color: '#1976d2' }}
                     onClick={() => handleNavigation('/management')}
                 />}
-                {GetCookie() && <AccountMenu showAccountMenu={showAccountMenu} setShowAccountMenu={setShowAccountMenu} setIsManager={setIsManager} />}
+
+                {userChanger && <AccountMenu userChanger={userChanger} showAccountMenu={showAccountMenu} setShowAccountMenu={setShowAccountMenu} setIsManager={setIsManager} />}
             </BottomNavigation>
             <Outlet />
             <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="xs" fullWidth>

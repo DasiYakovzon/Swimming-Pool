@@ -1,7 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import moment from 'moment-timezone';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { Courses, CoursesType, coursesDocument } from 'src/Schemas/courses/courses';
 import { ScheduleService } from 'src/schedule/schedule.service';
 
@@ -11,7 +11,8 @@ export class CoursesService {
     /**
      *
      */
-    constructor(@InjectModel('Courses') private readonly CourseModel: Model<coursesDocument>, @Inject(forwardRef(() => ScheduleService)) private schedule: ScheduleService) {
+    constructor(@InjectModel('Courses') private readonly CourseModel: Model<coursesDocument>,
+        @Inject(forwardRef(() => ScheduleService)) private schedule: ScheduleService) {
     }
 
     async create(course: Courses) {
@@ -19,19 +20,14 @@ export class CoursesService {
             let newCourse = await new this.CourseModel(course).save();
             const countMeetings = await this.schedule.addCourse(course);
 
-            console.log(countMeetings);
-
             newCourse.NumberOfMeeting = countMeetings;
 
             // Save the updated newCourse
             newCourse = await this.CourseModel.findByIdAndUpdate(newCourse._id, newCourse, { new: true });
 
-            console.log(newCourse.NumberOfMeeting);
-
             return await this.schedule
                 .findByCourseId(newCourse._id)
                 .then((resSchedule) => {
-                    console.log(newCourse, resSchedule);
 
                     return [newCourse, resSchedule];
                 });
@@ -50,10 +46,21 @@ export class CoursesService {
             return res._id;
     }
 
+    async findById(courseId: any) {
+
+        return (await this.CourseModel.findById(courseId));
+    }
+
 
     async getCourses() {
         const currentDate = new Date();
         return await this.CourseModel.find({ StartDate: { $gte: currentDate } }).exec();
+    }
+
+    async getAllCourses() {
+        this.schedule.checkEnrollmentsForNextDay();
+
+        return await this.CourseModel.find().exec();
     }
 
     async checkUpdateCapacity(courseId: string) {

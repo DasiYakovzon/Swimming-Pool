@@ -19,6 +19,7 @@ const defaultTheme = createTheme();
 
 export default function SignIn() {
     const navigate = useNavigate();
+
     const [res, setRes] = useState<boolean | undefined>(true);
     let response;
 
@@ -34,15 +35,15 @@ export default function SignIn() {
 
         const email = getValueOrDefault(data.get('email'), 'DefaultEmail');
         const password = getValueOrDefault(data.get('password'), 'DefaultPassword');
+
         response = await loginUser(email, password);
-        console.log(response);
 
         switch (response) {
             case true:
-                navigate('/?success=false');
+                navigate(`/?success=false`);
                 break;
             case false:
-                navigate('/?success=true');
+                navigate(`/?success=true`);
                 setRes(false);
                 break;
             case 401:
@@ -52,6 +53,9 @@ export default function SignIn() {
             case 404:
                 setRes(false);
                 navigate("/sign-in");
+                break;
+            case undefined:
+                setRes(undefined);
                 break;
             default:
                 break;
@@ -99,10 +103,7 @@ export default function SignIn() {
                             id="password"
                             autoComplete="current-password"
                         />
-                        {/* <FormControlLabel
-                            control={<Checkbox value="remember" color="primary" />}
-                            label="Remember me"
-                        /> */}
+
                         <Button
                             type="submit"
                             fullWidth
@@ -112,11 +113,6 @@ export default function SignIn() {
                             Sign In
                         </Button>
                         <Grid container>
-                            {/* <Grid item xs>
-                                <Link href="#" variant="body2">
-                                    Forgot password?
-                                </Link>
-                            </Grid> */}
                             <Grid item>
                                 <Link href="/sign-up" variant="body2">
                                     {"Don't have an account? Sign Up"}

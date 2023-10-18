@@ -115,7 +115,6 @@ export default function ColumnSpanningDerived() {
     } else {
       clickedDate = arg.date;
     }
-    console.log('Clicked Date:', clickedDate);
   
     setSelectedDate(clickedDate);
   

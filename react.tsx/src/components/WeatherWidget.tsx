@@ -35,7 +35,6 @@ const WeatherWidget: React.FC = () => {
             try {
                 const response = await axios.get(API_URL);
                 setWeatherData(response.data);
-                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching weather data:', error);
             }
@@ -62,8 +61,7 @@ const WeatherWidget: React.FC = () => {
     return (
         <div>
             <p>Temperature: <b>{weatherData?.main.temp} °C</b></p>
-            <p>Recommended Pool Temperature: <b>{poolTemperature.toFixed(2)} °C</b> </p>
-            {/* <DegreeMeter temperature={weatherData?.main.temp} minTemperature={weatherData?.main.temp_min} maxTemperature={weatherData?.main.temp_max} /> */}
+            <p>Pool Temperature: <b>{poolTemperature.toFixed(2)} °C</b> </p>
         </div>
     );
 };

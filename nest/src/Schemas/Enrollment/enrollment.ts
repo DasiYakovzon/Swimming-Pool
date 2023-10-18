@@ -13,6 +13,7 @@ export class Enrollment {
   @Prop({ type: Types.ObjectId, ref: 'Courses', required: true })
   course: Types.ObjectId | Courses;
 
+  
   @Prop({ required: true })
   registrationDate: Date;
 }

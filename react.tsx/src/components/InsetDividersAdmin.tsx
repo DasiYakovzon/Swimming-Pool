@@ -21,6 +21,7 @@ interface ResData {
   EndDate: string;
   price: number;
   duration: number;
+  capacity:number;
 }
 
 interface InsetDividersProps {
@@ -54,7 +55,7 @@ const StyledListItemText = styled(ListItemText)(({ theme }) => ({
   },
 }));
 
-const InsetDividers: React.FC<InsetDividersProps> = ({ data }) => {
+const InsetDividersAdmin: React.FC<InsetDividersProps> = ({ data }) => {
   const startDate = dayjs(data.StartDate);
   const endDate = dayjs(data.EndDate);
 
@@ -69,7 +70,7 @@ const InsetDividers: React.FC<InsetDividersProps> = ({ data }) => {
             <SchoolIcon />
           </StyledAvatar>
         </ListItemAvatar>
-        <StyledListItemText primary={`Teacher Name: ${data.TeacherName}`} secondary={`Number of Meetings: ${data.NumberOfMeeting}` + (data.price ? ` , price: ${data.price}`:'')} />
+        <StyledListItemText primary={`Teacher Name: ${data.TeacherName}`} secondary={`Number of Meetings: ${data.NumberOfMeeting}` + (data.price ? `price: ${data.price}`:'')} />
       </StyledListItem>
       <Divider variant="inset" component="li" />
       <StyledListItem>
@@ -98,8 +99,18 @@ const InsetDividers: React.FC<InsetDividersProps> = ({ data }) => {
         </ListItemAvatar>
         <StyledListItemText primary="Time" secondary={formattedTime} />
       </StyledListItem>
+      <StyledListItem>
+        <ListItemAvatar>
+          <StyledAvatar>
+            <SchoolIcon />
+          </StyledAvatar>
+        </ListItemAvatar>
+        <StyledListItemText primary={`Capacity: ${data.TeacherName}`} secondary={`Number of Meetings: ${data.NumberOfMeeting}` + (data.price ? `price: ${data.price}`:'')} />
+      </StyledListItem>
+      <Divider variant="inset" component="li" />
     </StyledList>
   );
 };
 
-export default InsetDividers;
+export default InsetDividersAdmin;
+

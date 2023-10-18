@@ -3,7 +3,7 @@ import { Grid } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
-import InsetDividers from './InsetDividers '; // Import the InsetDividers component
+import InsetDividers from './InsetDividers '; 
 import DoneIcon from '@mui/icons-material/Done';
 import { styled } from '@mui/material/styles';
 
@@ -56,7 +56,6 @@ const columns: GridColDef[] = [
 export default function CourseSchedule() {
   const location = useLocation();
   const { res } = location.state;
-  console.log(res);
 
   const resSchedule = res[1]; // Get the data from res[1]
   const rowsWithId = resSchedule.map((row: any, index: any) => ({ ...row, id: index + 1 }));
@@ -76,7 +75,7 @@ export default function CourseSchedule() {
 
       <Grid container spacing={2}>
         <Grid item xs={12} md={4}>
-          <InsetDividers data={res[0]} /> {/* Add the InsetDividers component */}
+          <InsetDividers data={res[0]} />
         </Grid>
         <Grid item xs={12} md={8}>
           <Box sx={{ height: 400, width: '100%' }}>

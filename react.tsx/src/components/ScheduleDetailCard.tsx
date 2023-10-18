@@ -1,8 +1,6 @@
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import Courses from './Courses';
 import { useState, useEffect } from 'react';
 import { getCoursesType } from '../api/api';
 import SchoolIcon from '@mui/icons-material/School';
@@ -37,11 +35,8 @@ export default function ScheduleDetailCard(props: any) {
 
         fetchCourseTypes();
     }, []);
-    // const { courseType } = props;
-    //console.log(props.props.Course.CoursesType);
     const course = props.props.Course;
     const schedule = props.props;
-    // console.log(courseType); // Now it should log the correct courseType
 
     return (
         <Card sx={{ minWidth: 275 }}>

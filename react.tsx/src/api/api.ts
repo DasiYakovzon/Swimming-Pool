@@ -24,12 +24,14 @@ export const getDetails = async () => {
         return false;
     }
     else {
+
         try {
             const res = await api.get(`${config.api}/userDetails`, {
                 headers: {
                     'authorization': GetCookie()
                 }
             });
+
             return res.data;
         }
         catch (error: any) {
@@ -39,15 +41,41 @@ export const getDetails = async () => {
 
 }
 
+
 // Method to remove data from cookies
 export const RemoveCookie = () => {
     Cookies.remove("token");
 };
 
+export const getAmountNewReply = async () => {
+    if (!GetCookie()) {
+        return false;
+    }
+    else {
+
+        try {
+            const res = await api.get(`${config.api}/comments/getAmountNewReply`, {
+                headers: {
+                    'authorization': GetCookie()
+                }
+            });
+
+            return res.data;
+        }
+        catch (error: any) {
+            return -1;
+        }
+    }
+
+}
+
+
 export const loginUser = async (email: string, password: string) => {
     try {
+        RemoveCookie();
         const res = await api.post(`${config.api}/signin`, { email, password });
-        // const resp = await api.get(`${config.api}/emails/send`);
+        const cron = await api.get(`${config.api}/schedule/start-job`);
+        console.log(cron);
 
         SetCookie(res.data[0]);
         return (res.data[1] === 'user');
@@ -58,11 +86,11 @@ export const loginUser = async (email: string, password: string) => {
 
 export const registerUser = async (firstName: string, lastName: string, email: string, phone: string, address: string, password: string) => {
     try {
+        RemoveCookie();
         const res = await api.post(`${config.api}/register`, { firstName, lastName, email, phone, address, password });
         SetCookie(res.data[0]);
         return (res.data[1] === 'user');
     } catch (error: any) {
-        console.log(error);
         return error?.response?.status;
     }
 };
@@ -74,13 +102,9 @@ export const updateUserDetails = async (userDetails: any) => {
                 'authorization': GetCookie()
             }
         });
-        console.log(res.status, 'resstatus');
-
         return res.status;
     }
     catch (error: any) {
-        console.log(error, 'error');
-
         return error?.response?.status;
     }
 }
@@ -99,6 +123,25 @@ export const checkIsManager = async () => {
         return error?.response?.status;
     }
 }
+
+
+export const getAllUserDetails = async (email: string) => {
+    try {
+        const res = await api.get(`${config.api}/getAllUserDetails`, {
+            params: {
+                email: email
+            },
+            headers: {
+                'authorization': GetCookie()
+            }
+        });
+        return res.data;
+    }
+    catch (error: any) {
+        return error?.response?.status;
+    }
+}
+
 export const checkCreditDetails = async () => {
     try {
         const res = await api.get(`${config.api}/payment/check`, {
@@ -106,8 +149,6 @@ export const checkCreditDetails = async () => {
                 'authorization': GetCookie()
             }
         });
-        console.log(res, res.data);
-
         return res.data;
     }
     catch { }
@@ -136,12 +177,9 @@ export const getPrice = async (duration: string) => {
                 'authorization': GetCookie()
             }
         });
-        console.log(res, res.data);
-
         return res.data;
     }
     catch (error: any) {
-        console.log(error);
         return error?.response?.status;
     }
 }
@@ -152,8 +190,6 @@ export const checkIsSubscribe = async () => {
                 'authorization': GetCookie()
             }
         });
-        console.log(res, res.data);
-
         return res.data;
     }
     catch (error: any) {
@@ -169,8 +205,6 @@ export const addPaymentDetails = async (nameCard: string, cardNumber: string, ex
                 'authorization': GetCookie()
             }
         });
-        console.log(res);
-
         return res.data;
     }
     catch (error: any) {
@@ -188,8 +222,6 @@ export const getUsers = async () => {
         });
         return res.data;
     } catch (error: any) {
-        console.error('Error:', error);
-        console.log('Response status:', error?.response?.status);
         return error?.response?.status;
     }
 };
@@ -199,6 +231,19 @@ export const addCourse = async (TeacherName: string, NumberOfMeeting: number, Co
         const res = await api.post(`${config.api}/course/add`, {
             TeacherName, NumberOfMeeting, Gender, CoursesType, StartDate, EndDate, duration, price, capacity
         }, {
+            headers: {
+                authorization: GetCookie(),
+            },
+        });
+        return res.data;
+    } catch (error: any) {
+        return error?.response?.status;
+    }
+};
+
+export const getAllCourses = async () => {
+    try {
+        const res = await api.get(`${config.api}/course/getAll`, {
             headers: {
                 authorization: GetCookie(),
             },
@@ -252,6 +297,19 @@ export const getCourses = async () => {
         console.error('Error:', error);
         console.log('Response status:', error?.response?.status);
         return error?.response?.status;
+    }
+}
+
+export const getManageCourses = async () => {
+    try {
+        const res = await api.get(`${config.api}/course/getAll`)
+        console.log('456', res)
+
+        return res.data
+    } catch (error: any) {
+        console.error('Error:', error)
+        console.log('Response status:', error?.response?.status)
+        return error?.response?.status
     }
 }
 
@@ -312,6 +370,36 @@ export const updateComment = async (_id: any) => {
     }
 }
 
+export const updateReplyStatusOfComment = async (_id: any) => {
+    try {
+        const res = await api.put(`${config.api}/comments/updateReplyStatus/${_id}`, null, {
+            headers: {
+                authorization: GetCookie(),
+            },
+        });
+        console.log(res.status);
+
+        return res.status;
+    } catch (error: any) {
+        console.error('Error:', error);
+        console.log('Response status:', error?.response?.status);
+        return error?.response?.status;
+    }
+}
+export const replyComment = async (reply: string, _id: any) => {
+    try {
+        const res = await api.post(`${config.api}/comments/reply`, { reply, _id }, {
+            headers: {
+                authorization: GetCookie(),
+            },
+        });
+        return res.status;
+    } catch (error: any) {
+        console.error('Error:', error);
+        console.log('Response status:', error?.response?.status);
+        return error?.response?.status;
+    }
+}
 
 export const getComments = async () => {
     try {
@@ -322,6 +410,21 @@ export const getComments = async () => {
         });
         console.log(res.data);
 
+        return [res.status, res.data];
+    } catch (error: any) {
+        console.error('Error:', error);
+        console.log('Response status:', error?.response?.status);
+        return [error?.response?.status];
+    }
+}
+
+export const getCommentAndReply = async () => {
+    try {
+        const res = await api.get(`${config.api}/comments/getNewReply`, {
+            headers: {
+                authorization: GetCookie(),
+            },
+        });
         return [res.status, res.data];
     } catch (error: any) {
         console.error('Error:', error);
@@ -396,3 +499,4 @@ export const addSatisfaction = async (Service: number,
         return error?.response?.status;
     }
 }
+

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
-import { userDocument } from "../user.schema";
+import { UserDocument } from "../user.schema";
 
 export type SatisfactionDocument = Satisfaction & Document;
 
@@ -26,7 +26,7 @@ export class Satisfaction {
     Date: Date;
 
     @Prop({ type: Types.ObjectId, ref: 'User' })
-    User: Types.ObjectId | userDocument;
+    User: Types.ObjectId | UserDocument;
 }
 
 export const SatisfactionSchema = SchemaFactory.createForClass(Satisfaction);

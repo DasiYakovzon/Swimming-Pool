@@ -14,20 +14,6 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Alert from '@mui/material/Alert';
 
-// function Copyright(props: any) {
-//   return (
-//     <Typography variant="body2" color="text.secondary" align="center" {...props}>
-//       {'Copyright © '}
-//       <Link color="inherit" href="https://mui.com/">
-//         Your Website
-//       </Link>{' '}
-//       {new Date().getFullYear()}
-//       {'.'}
-//     </Typography>
-//   );
-// }
-
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function SignUp() {
@@ -53,7 +39,7 @@ export default function SignUp() {
       const address = getValueOrDefault(data.get('address'), 'DefaultAddress');
       const password = getValueOrDefault(data.get('password'), 'DefaultPassword');
 
-      const res = await registerUser(firstName, lastName, email, phone, address, password);
+      const res = await registerUser(firstName, lastName, email, phone, address, password);      
       switch (res) {
         case true:
           navigate('/?success=false');
@@ -64,11 +50,8 @@ export default function SignUp() {
           break;
         case 409:
           setRes(409);
-          //navigate('/?success=false');
           break;
         default:
-          // setRes(undefined);
-          // navigate("/sign-up");
           break;
 
       }
@@ -167,7 +150,7 @@ export default function SignUp() {
                   name="address"
                   autoComplete="address"
                   inputProps={{
-                    pattern: "^[a-zA-Z ]+[0-9]$",
+                    pattern: "[a-zA-Z 0-9]+",
                     title: "Adjust to this pattern: Your address XXX(number of building)", // Error message to display when pattern doesn't match
                   }}
                 />

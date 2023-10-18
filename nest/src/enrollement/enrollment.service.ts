@@ -1,7 +1,8 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { EnrollmentDocument } from 'src/Schemas/Enrollment/enrollment';
+import { User } from 'src/Schemas/user.schema';
 import { AuthService } from 'src/auth/auth.service';
 import { CoursesService } from 'src/courses/courses.service';
 import { UsersService } from 'src/users/users.service';
@@ -11,7 +12,11 @@ export class EnrollmentService {
     /**
      *
      */
-    constructor(@InjectModel('Enrollment') private readonly enrollmentModel: Model<EnrollmentDocument>, private authService: AuthService, private readonly userService: UsersService, private courseService: CoursesService) { }
+    constructor(
+        @InjectModel('Enrollment') private readonly enrollmentModel: Model<EnrollmentDocument>,
+        private authService: AuthService,
+        @Inject(forwardRef(() => UsersService)) private userService: UsersService,
+        private courseService: CoursesService) { }
 
     async registerUserToCourse(token: string, courseId: string) {
         try {
@@ -19,7 +24,7 @@ export class EnrollmentService {
             const user_id = await this.userService.findOneByEmail(decodedToken['email']);
             if (user_id) {
                 const existingEnrollment = await this.enrollmentModel.findOne({ user: user_id, course: courseId }).exec();
-                if (existingEnrollment) {                    
+                if (existingEnrollment) {
                     return { success: false, message: 'User is already enrolled in this course', status: HttpStatus.CONFLICT };
                 }
                 const res = await this.courseService.checkUpdateCapacity(courseId);
@@ -27,7 +32,7 @@ export class EnrollmentService {
                     const currentDate = new Date();
                     const enrollment = new this.enrollmentModel({
                         user: user_id, // Pass the user_id to the user field
-                        course: courseId, // Pass the courseId to the course field
+                        course: new mongoose.Types.ObjectId(courseId), // Pass the courseId to the course field
                         registrationDate: currentDate, // Pass the currentDate to the registrationDate field
                     });
                     await enrollment.save();
@@ -45,5 +50,10 @@ export class EnrollmentService {
             console.error('Error:', error);
             throw error;
         }
+    }
+
+    async findByUserId(user_id: Object | User) {
+
+        return (await this.enrollmentModel.find({ user: user_id }).exec());
     }
 }

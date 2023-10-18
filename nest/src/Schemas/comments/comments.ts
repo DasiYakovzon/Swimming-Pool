@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types, Document } from "mongoose";
-import { userDocument } from "../user.schema";
+import { UserDocument } from "../user.schema";
 
 export type CommentsDocument = Comments & Document;
 
@@ -23,8 +23,14 @@ export class Comments {
   @Prop({ required: true })
   content: string;
 
+  @Prop({ required: false })
+  reply: string;
+
+  @Prop({ required: false, default: status.new })
+  statusReply: status;
+
   @Prop({ type: Types.ObjectId, ref: 'User', required: false })
-  user?: Types.ObjectId | userDocument;
+  user?: Types.ObjectId | UserDocument;
 
   @Prop({ required: true })
   date: Date;

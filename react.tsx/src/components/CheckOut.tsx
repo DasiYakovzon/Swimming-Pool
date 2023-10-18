@@ -94,8 +94,6 @@ export default function Checkout() {
 
       if (rememberDetails) {
         const resStatus = await addPaymentDetails(nameCard, cardNumber, expDate, cvv);
-        console.log(resStatus, "wefg");
-
         switch (resStatus) {
           case 201:
             setActiveStep(activeStep + 1);
@@ -111,10 +109,7 @@ export default function Checkout() {
       setActiveStep(activeStep + 1);
 
     } else {
-      console.log('else');
-
       setActiveStep(activeStep + 1);
-      console.log(activeStep);
 
     }
   };

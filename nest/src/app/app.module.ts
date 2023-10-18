@@ -38,12 +38,37 @@ import { EnrollmentService } from 'src/enrollement/enrollment.service';
 import { EnrollementController } from 'src/enrollement/enrollment.controller';
 import { EnrollementModule } from 'src/enrollement/enrollment.module';
 import { EmailService } from 'src/email/email.service';
-import { EmailModule } from 'src/email/email.module';
-import { EmailController } from 'src/email/email.controller';
+import { MailerModule } from '@nestjs-modules/mailer';
+// import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost/nest'),
+    // MailerModule.forRoot({
+    //   transport:
+    //     'smtps://paradisepool232@gmail.com:chyjbntzrtqnzjav@smtp.gmail.com'
+    //   ,
+    //   defaults: {
+    //     from: '<paradisepool232@gmail.com>',
+    //   },
+    //   preview: true,
+    // }),
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // Set to false for self-signed certificates
+        auth: {
+          user: 'paradisepool232@gmail.com',
+          pass: 'chyjbntzrtqnzjav', // Replace with your Gmail password
+        },
+      },
+      defaults: {
+        from: '"ParadisePool" <paradisepool232@gmail.com>',
+      },
+      preview: true,
+    }),
+    
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: CreditDetails.name, schema: CreditDetailsSchema }]),
     MongooseModule.forFeature([{ name: Schedule.name, schema: ScheduleSchema }]),
@@ -53,12 +78,13 @@ import { EmailController } from 'src/email/email.controller';
     MongooseModule.forFeature([{ name: Comments.name, schema: CommentSchema }]),
     MongooseModule.forFeature([{ name: Enrollment.name, schema: EnrollmentSchema }]),
   ],
-  controllers: [AppController, AuthController, UsersController, PaymentDetailsController, CoursesController, ScheduleController, SubscriptionController, SatisfactionController, CommentsController, EnrollementController,EmailController],
+  controllers: [AppController, AuthController, UsersController, PaymentDetailsController, CoursesController, ScheduleController, SubscriptionController, SatisfactionController, CommentsController, EnrollementController],
   providers: [CoursesService, AppService, UsersModule, UsersService, JwtService, AuthService,
     PaymentDetailsService, PaymentDetailsModule,
     CoursesModule, ScheduleModule, CoursesService, ScheduleService, SubscriptionModule,
     SubscriptionService, SatisfactionService,
-    SatisfactionModule, CommentsModule, CommentsService, EnrollmentService, EnrollementModule,EmailService,EmailModule],
+    SatisfactionModule, CommentsModule, CommentsService, EnrollmentService, EnrollementModule,
+    EmailService],
 })
 export class AppModule {
 }
