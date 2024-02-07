@@ -2,20 +2,22 @@ import { useEffect, useState } from "react";
 import { getCourses } from "../api/api";
 import CourseCard from "./CourseCard";
 import { Alert } from "@mui/material";
+import { Course } from "./ManageCourses";
 
 export default function Courses() {
-    const [courses, setCourses] = useState<[]>([]);
+    const [courses, setCourses] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchCourses = async () => {
             const res = await getCourses();
-            setCourses(res);
+            setCourses(res.filter((c: Course) => c.CoursesType != 'free swimming'));
         };
         fetchCourses();
     }, []);
 
+
     return (
-        <div style={{ display: 'flex', flexWrap: 'wrap',justifyContent:'center',marginTop:'5%', gap: '20px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '5%', gap: '20px' }}>
 
             {courses === undefined ? (
                 <Alert severity="warning">Ooops... Fail to connect server, try later...</Alert>

@@ -54,7 +54,6 @@ export class CommentsService {
   }
 
   async updateStatus(commentId: string) {
-
     return await this.CommentsModel.findByIdAndUpdate(commentId, { status: status.old });
   }
 

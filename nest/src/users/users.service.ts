@@ -1,5 +1,5 @@
 // users.service.ts
-import { BadRequestException, ConflictException, HttpStatus, Inject, Injectable, MisdirectedException, forwardRef } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, MisdirectedException, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/Schemas/user.schema'; // Import your user schema types
@@ -13,6 +13,7 @@ import { SubscriptionService } from 'src/subscription/subscription.service';
 import { SatisfactionService } from 'src/Satisfaction/satisfaction.service';
 import { CoursesService } from 'src/courses/courses.service';
 import { Satisfaction } from 'src/Schemas/satisfaction/satisfaction';
+import { Email } from 'src/Schemas/Email/Email';
 
 @Injectable()
 export class UsersService {
@@ -80,6 +81,16 @@ export class UsersService {
     }
 
     async update(token: string, updatedUser: any) {
+        console.log(updatedUser);
+        if (updatedUser.id) {
+            updatedUser.password = (await this.UserModel.findById(updatedUser.id))?.password;
+            return await this.UserModel.findByIdAndUpdate(
+                updatedUser.user_id,
+                { $set: updatedUser },
+                { new: true }
+            );
+        }
+           
         const decodedToken = await this.authService.decoded(token);
         const user = await this.findUserByEmail(decodedToken['email']);
         try {
@@ -101,12 +112,11 @@ export class UsersService {
 
             const user_id = await this.findOneByEmail(decodedToken['email']);
             const reqUser = await this.hashPassword(updatedUser);
-            const updatedUserDoc = await this.UserModel.findByIdAndUpdate(
+            return await this.UserModel.findByIdAndUpdate(
                 user_id,
                 { $set: reqUser },
                 { new: true }
             );
-            return updatedUserDoc;
         } catch (error) {
             throw new BadRequestException();
         }
@@ -137,7 +147,7 @@ export class UsersService {
         const subscription = await this.subscriptionService.getDetails(user_id);
         const satisfaction = await this.satisfactionService.find(user_id);
 
-        satisfaction.map(async (s:Satisfaction) => {
+        satisfaction.map(async (s: Satisfaction) => {
 
             return {
                 Service: s.Service,
@@ -150,5 +160,9 @@ export class UsersService {
         return { adaptedCourses, subscription, satisfaction };
     }
 
+
+    async deleteUser(id: string) {
+       return  await this.UserModel.findByIdAndDelete(id);
+    }
 }
 

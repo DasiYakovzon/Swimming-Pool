@@ -14,6 +14,7 @@ import { Role } from 'src/Roles/Role.enum';
 import { Roles } from 'src/Roles/roles.decorator';
 import { RolesGuard } from 'src/Roles/roles.guard';
 import { AuthService } from 'src/auth/auth.service';
+import { log } from 'console';
 
 @Controller('comments')
 export class CommentsController {
@@ -58,7 +59,7 @@ export class CommentsController {
   @Put(':commentId')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Admin)
-  async updateStatus(@Param('commentId') commentId: string) {
+  async updateStatus(@Param('commentId') commentId: string) {    
     return this.commentsService.updateStatus(commentId);
   }
 

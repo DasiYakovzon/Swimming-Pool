@@ -74,7 +74,6 @@ export class SubscriptionService {
         }
     }
 
-
     async getPrice(type: SubscriptionType) {
 
         return getPrice(type); // returns 500

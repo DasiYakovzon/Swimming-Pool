@@ -29,7 +29,7 @@ function Home() {
     const location = useLocation();
     const [showModal, setShowModal] = useState(false);
     const [isManager, setIsManager] = useState<boolean>(false);
-    const [showAccountMenu, setShowAccountMenu] = useState(true);
+    const [showAccountMenu, setShowAccountMenu] = useState(false);
     const [userChanger, setUserChanger] = useState(0);
     const handleNavigation = (path: string) => {
         navigate(path);

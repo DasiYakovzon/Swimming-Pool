@@ -11,8 +11,8 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { useEffect, useState } from 'react';
-import { getUsers, getAllUserDetails } from '../api/api';
+import { Dispatch, useEffect, useState } from 'react';
+import { getUsers, getAllUserDetails, deleteUser } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import Chip from '@mui/material/Chip';
 import { PieChart, pieArcClasses } from '@mui/x-charts/PieChart';
@@ -22,16 +22,18 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-
-
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import DialogUpdateDetails from './DialogUpdateDetails';
 
 function createData(
-  id: number,
+  id: string,
   firstName: string,
   lastName: string,
   address: string,
   email: string,
-  isAdmin: boolean,
+  phone: string,
+  Role: string,
 ) {
   return {
     id,
@@ -39,15 +41,20 @@ function createData(
     lastName,
     address,
     email,
-    isAdmin,
+    phone,
+    Role,
   };
 }
-function Row(props: { row: ReturnType<typeof createData> }) {
-  const { row } = props;
-  const [open, setOpen] = React.useState(false);
+function Row(props: { row: ReturnType<typeof createData>, setDelete: Dispatch<React.SetStateAction<boolean>> }) {
+  const { setDelete } = props;
+  const [row, setRow] = useState(props.row);
+  const [open, setOpen] = useState(false);
   const [userDetails, setUserDetails] = useState<any>(null);
   const [subscription, setSubscription] = useState<string | null>("");
   const [data, setData] = useState<MakeOptional<PieValueType, "id">[]>([]);
+  const [edit, setEdit] = useState(false);
+  const [update, setUpdate] = useState(0);
+
   const fetchUserDetails = async (email: string) => {
     const details = await getAllUserDetails(email);
     setUserDetails(details);
@@ -93,12 +100,22 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 
 
 
-
   const handleRowClick = async () => {
     if (!open) {
       await fetchUserDetails(row.email);
     }
     setOpen(!open);
+  };
+
+  const handleEditClick = () => {
+    setEdit(!edit);
+  };
+
+  const handleDeleteClick = async () => {
+    const res = await deleteUser(row.id);
+    console.log(res);
+    alert(res);
+    setDelete(res == 200);
   };
 
   return (
@@ -118,10 +135,25 @@ function Row(props: { row: ReturnType<typeof createData> }) {
         </TableCell>
         <TableCell align="right">{row.address}</TableCell>
         <TableCell align="right">{row.email}</TableCell>
-        <TableCell align="right">{row.isAdmin ? 'Yes' : 'No'}</TableCell>
+        <TableCell align="right">{row.Role == "admin" ? 'ADMIN' : 'USER'}</TableCell>
+        <TableCell>
+          <IconButton
+            onClick={handleEditClick}
+            color="inherit"
+          >
+            {<EditIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>
+          <IconButton
+            onClick={handleDeleteClick}
+            color="inherit"
+          >{<DeleteIcon />}
+          </IconButton>
+        </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0, background: 'white' }} colSpan={5}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0, background: 'white' }} colSpan={7}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Table size="small" aria-label="user-details">
@@ -204,6 +236,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
           </Collapse>
         </TableCell>
       </TableRow>
+      {edit && <DialogUpdateDetails details={row} setDetails={setRow} update={update} setUpdate={setUpdate} showModal={edit} setShowModal={setEdit} />}
     </React.Fragment>
   );
 }
@@ -211,6 +244,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 
 export default function ManageUsers() {
   const [rows, setRows] = useState<any[]>([]);
+  const [deleteIt, setDelete] = useState(false);
   const nav = useNavigate();
 
   useEffect(() => {
@@ -226,14 +260,15 @@ export default function ManageUsers() {
         default:
           if (Array.isArray(res)) {
             const usersData: ReturnType<typeof createData>[] = res.map(
-              (row: any, index: number) =>
+              (row: any) =>
                 createData(
-                  index + 1,
+                  row._id,
                   row.firstName,
                   row.lastName,
                   row.address,
                   row.email,
-                  row.role === 'admin'
+                  row.phone,
+                  row.role
                 )
             );
             setRows(usersData);
@@ -244,23 +279,25 @@ export default function ManageUsers() {
       }
     };
     checkAdminStatus();
-  }, []);
+  }, [deleteIt]);
 
   return (
     <TableContainer component={Paper} sx={{ width: '120vh', marginTop: '10px' }}>
       <Table aria-label="user-table" sx={{ backgroundColor: 'rgb(238 236 236)' }}>
         <TableHead>
           <TableRow>
-            <TableCell />
+            <TableCell>Details</TableCell>
             <TableCell>Name</TableCell>
             <TableCell align="right">Address</TableCell>
             <TableCell align="right">Email</TableCell>
-            <TableCell align="right">Admin</TableCell>
+            <TableCell align="right">Role</TableCell>
+            <TableCell>Edit </TableCell>
+            <TableCell>Delete</TableCell>
           </TableRow>
         </TableHead>
         <TableBody >
           {rows.map((user) => (
-            <Row key={user.email} row={user} />
+            <Row key={user.email} row={user} setDelete={setDelete} />
           ))}
         </TableBody>
       </Table>

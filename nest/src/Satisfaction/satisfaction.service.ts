@@ -15,7 +15,6 @@ export class SatisfactionService {
     private jwtService: JwtService,
     private authService: AuthService) { }
 
-
   async create(token: string, satisfaction: Satisfaction) {
     const decodedToken = await this.authService.decoded(token);
     const user_id = await this.userService.findOneByEmail(decodedToken['email']);
@@ -33,7 +32,6 @@ export class SatisfactionService {
   async getSatisfaction() {
     return await this.SatisfactionModel.find().exec();
   }
-
 
   async checkSatisfaction(token: string) {
     const decodedToken = await this.authService.decoded(token);

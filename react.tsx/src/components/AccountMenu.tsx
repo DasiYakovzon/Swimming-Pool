@@ -26,6 +26,7 @@ import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import { Badge, Typography, styled } from '@mui/material';
 import updateGif from '../assets/SwimmingPool/update.gif'
+import DialogUpdateDetails from './DialogUpdateDetails';
 
 interface UserDetails {
     firstName: string;
@@ -72,9 +73,9 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 
 export default function AccountMenu({ userChanger, showAccountMenu, setShowAccountMenu, setIsManager }: any) {
     const nav = useNavigate();
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [showModal, setShowModal] = useState(false);
     const [update, setUpdate] = useState(0);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [newReply, setNewReply] = useState(0);
     const [tempDetail, setTempDetail] = useState<TempUserDetails>({
         firstName: '',
@@ -116,12 +117,6 @@ export default function AccountMenu({ userChanger, showAccountMenu, setShowAccou
         nav('/');
     };
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const res = await updateUserDetails(details);
-        setUpdate(res);
-
-    }
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -249,164 +244,7 @@ export default function AccountMenu({ userChanger, showAccountMenu, setShowAccou
                     Logout
                 </MenuItem>
             </Menu>
-
-            <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="xs" fullWidth>
-                {(update === 0 || update === 400 || update === 421) &&
-                    <>
-                        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', paddingRight: '8px', color: 'blue' }}>
-                            Change User Details
-                            <IconButton className="close-button" onClick={() => setShowModal(false)}>
-                                <CloseIcon />
-                            </IconButton>
-                        </DialogTitle>
-                        <DialogContent dividers>
-                            <Box component="form" sx={{ mt: 3 }} onSubmit={handleSubmit}>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            required
-                                            autoComplete="given-name"
-                                            name="firstName"
-                                            fullWidth
-                                            id="firstName"
-                                            label="First Name"
-                                            value={details.firstName}
-                                            autoFocus
-                                            onChange={(e) => setDetails({ ...details, firstName: e.target.value })}
-                                            inputProps={{
-                                                pattern: "[A-Za-zא-ת]+",
-                                                title: "Please enter only letters", // Error message to display when pattern doesn't match
-                                            }} />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            required
-                                            fullWidth
-                                            id="lastName"
-                                            label="Last Name"
-                                            name="lastName"
-                                            value={details.lastName}
-                                            autoComplete="family-name"
-                                            onChange={(e) => setDetails({ ...details, lastName: e.target.value })}
-                                            inputProps={{
-                                                pattern: "[A-Za-zא-ת]+",
-                                                title: "Only letters", // Error message to display when pattern doesn't match
-                                            }} />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            required
-                                            fullWidth
-                                            id="email"
-                                            label="Email Address"
-                                            name="email"
-                                            value={details.email}
-                                            autoComplete="email"
-                                            onChange={(e) => setDetails({ ...details, email: e.target.value })}
-                                            inputProps={{
-                                                pattern: "^[a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]+$", // Only accept letters (no numbers or special characters)
-                                                title: "Adjust to this pattern  john@example.com", // Error message to display when pattern doesn't match
-                                            }} />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            required
-                                            fullWidth
-                                            id="phone"
-                                            label="Phone"
-                                            name="phone"
-                                            value={details.phone}
-                                            autoComplete="phone"
-                                            onChange={(e) => setDetails({ ...details, phone: e.target.value })}
-                                            inputProps={{
-                                                pattern: "[0-9]{9,10}",
-                                                title: "9 or 10 digits", // Error message to display when pattern doesn't match
-                                            }} />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            required
-                                            fullWidth
-                                            id="address"
-                                            label="Address"
-                                            name="address"
-                                            value={details.address}
-                                            autoComplete="address"
-                                            onChange={(e) => setDetails({ ...details, address: e.target.value })}
-                                            inputProps={{
-                                                pattern: "[a-zA-Z ]+[0-9]+",
-                                                title: "Adjust to this pattern: Your address XXX(number of building)", // Error message to display when pattern doesn't match
-                                            }} />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            required
-                                            fullWidth
-                                            name="prevPassword"
-                                            label="Prev Password"
-                                            type="password"
-                                            id="prevPassword"
-                                            value={details.prevPassword}
-                                            autoComplete="new-password"
-                                            onChange={(e) => setDetails({ ...details, prevPassword: e.target.value })}
-                                            inputProps={{
-                                                pattern: "^.{6,8}$",
-                                                title: "Lengthed 6-8 chars", // Error message to display when pattern doesn't match
-                                            }} />
-
-                                    </Grid>
-                                    <Grid item>
-                                        {(update == 400 || update == 421) && (
-                                            <Typography variant="caption" color="error">
-                                                Error Password!!
-                                            </Typography>
-                                        )}
-                                    </Grid>
-
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            required
-                                            fullWidth
-                                            name="password"
-                                            label="New Password"
-                                            type="password"
-                                            id="password"
-                                            value={details.password}
-                                            autoComplete="new-password"
-                                            onChange={(e) => setDetails({ ...details, password: e.target.value })}
-                                            inputProps={{
-                                                pattern: "^.{6,8}$",
-                                                title: "Lengthed 6-8 chars", // Error message to display when pattern doesn't match
-                                            }} />
-                                    </Grid>
-                                </Grid>
-
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    sx={{ mt: 3, mb: 2 }}
-                                >
-                                    Apply Settings
-                                </Button>
-                            </Box>
-                        </DialogContent></>}
-                {update == 200 && <DialogContent dividers>
-
-                    <><DialogTitle sx={{ display: 'flex', justifyContent: 'right', paddingRight: '8px', color: 'blue' }}>
-                        <IconButton className="close-button" onClick={() => setShowModal(false)}>
-                            <CloseIcon />
-                        </IconButton>
-                    </DialogTitle>
-                        <Typography variant="h3" gutterBottom color={'blue'} align={'center'}>
-                            <img src={updateGif} width={400} />
-                            updated!
-                        </Typography></>
-
-
-                </DialogContent>}
-            </Dialog>
-
+            {showModal && <DialogUpdateDetails details={details} setDetails={setDetails} update={update} setUpdate={setUpdate} showModal={showModal} setShowModal={setShowModal} />}
 
         </Fragment>
     );

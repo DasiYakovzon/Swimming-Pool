@@ -12,34 +12,27 @@ import { EmailService } from 'src/email/email.service';
 @Injectable()
 export class ScheduleService {
 
-
   constructor(@InjectModel('Schedule') private readonly ScheduleModel: Model<ScheduleDocument>,
     @Inject(forwardRef(() => CoursesService)) private courseService: CoursesService,
     @InjectModel('Enrollment') private enrollmentModel: Model<EnrollmentDocument>,
     @InjectModel('User') private userService: UsersService,
     private readonly emailService: EmailService
   ) { }
-
-
-
+  
   async checkAddCourse(startDate: Date, endDate: Date, numHours: number): Promise<boolean> {
     const currentDate = new Date(startDate);
     const localEndDate = new Date(endDate);
 
-    // 1. בדוק שהתאריך הראשון לא נמצא ביום שבת (יום 6).
     if (currentDate.getDay() === 6) {
-      return false; // לא ניתן להוסיף קורס בשבת
+      return false; //Adding course on Shabat it impossible
     }
 
-    // 2. בדוק שהשעה המשוערכת לסיום הקורס היא עד 10 בלילה (22:00).
-    if (currentDate.getHours() + numHours > 22) {
-      return false; // לא ניתן להוסיף קורס שמסתיים אחרי 22:00
+    if (!this.isWithinOpeningHours(currentDate)) {
+      return false; // Course time is on opppening time.
     }
 
     while (currentDate <= localEndDate) {
-      if (!this.isWithinOpeningHours(currentDate)) {
-        return false; // שעת התחלת הקורס אינה בשעות הפתיחה
-      }
+
 
       const dayOfWeek = currentDate.getDay();
 
@@ -66,14 +59,15 @@ export class ScheduleService {
         ]
       }).exec();
 
+      // There is a schedule conflict
       if (schedules.length > 0) {
-        return false; // נמצאו לוזיות מתנגשות, לא ניתן להוסיף את הקורס
+
+        return false;
       }
 
-      currentDate.setDate(currentDate.getDate() + 7); // לעבור לשבוע הבא
+      currentDate.setDate(currentDate.getDate() + 7); // Move to the next week
     }
-
-    return true; // לא נמצאו לוזיות מתנגשות, ניתן להוסיף את הקורס
+    return true;  // No conflicts found, course can be added
   }
 
   async addCourse(course: Courses) {
@@ -120,7 +114,7 @@ export class ScheduleService {
 
     const hour = date.getHours();
 
-    return hour >= openingHour && hour <= closingHour;
+    return (hour >= openingHour) && (hour <= closingHour);
   }
 
   async checkEnrollmentsForNextDay() {
@@ -146,15 +140,15 @@ export class ScheduleService {
     const enrollments = await this.enrollmentModel.find({
       course: { $in: courseIds },
     }).populate('user').exec();
-    
+
     this.sendEmailToEnrollentTommorow(enrollments);
 
     return enrollments;
   }
 
   async sendEmailToEnrollentTommorow(enrollments: any) {
-    enrollments.forEach(async (e:any) => {
-      const course = await this.courseService.findById(e.course);      
+    enrollments.forEach(async (e: any) => {
+      const course = await this.courseService.findById(e.course);
       this.emailService.sendEmail(e.user.email, e.user.firstName, course.CoursesType, new Date());
     });
   }

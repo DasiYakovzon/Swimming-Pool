@@ -1,16 +1,17 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
 import { UserDocument } from "../user.schema";
+import { ApiProperty } from "@nestjs/swagger";
 
 export type SubscriptionDocument = Subscription & Document;
 
 export enum SubscriptionType {
-    Weekly = 'Weekly',
-    Monthly = 'Monthly',
-    Yearly = "Yearly",
+  Weekly = 'Weekly',
+  Monthly = 'Monthly',
+  Yearly = "Yearly",
 }
 
-export function getPrice(type: SubscriptionType): number {  
+export function getPrice(type: SubscriptionType): number {
   switch (type) {
     case SubscriptionType.Yearly:
       return 2000;
@@ -24,18 +25,26 @@ export function getPrice(type: SubscriptionType): number {
 }
 @Schema()
 export class Subscription {
-    
-    @Prop({ required: true })
-    SubscriptionType: SubscriptionType;
 
-    @Prop({ required: true })
-    StartDate: Date;
 
-    @Prop({ required: true })
-    EndDate: Date;
+  @ApiProperty()
+  @Prop({ required: true })
+  SubscriptionType: SubscriptionType;
 
-    @Prop({ type: Types.ObjectId, ref: 'User' })
-    User: Types.ObjectId | UserDocument;
+
+  @ApiProperty()
+  @Prop({ required: true })
+  StartDate: Date;
+
+
+  @ApiProperty()
+  @Prop({ required: true })
+  EndDate: Date;
+
+
+  @ApiProperty()
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  User: Types.ObjectId | UserDocument;
 }
 
 export const SubscriptionSchema = SchemaFactory.createForClass(Subscription);

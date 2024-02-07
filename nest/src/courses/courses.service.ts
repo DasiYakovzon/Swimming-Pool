@@ -7,10 +7,7 @@ import { ScheduleService } from 'src/schedule/schedule.service';
 
 @Injectable()
 export class CoursesService {
-
-    /**
-     *
-     */
+    
     constructor(@InjectModel('Courses') private readonly CourseModel: Model<coursesDocument>,
         @Inject(forwardRef(() => ScheduleService)) private schedule: ScheduleService) {
     }
@@ -50,7 +47,6 @@ export class CoursesService {
 
         return (await this.CourseModel.findById(courseId));
     }
-
 
     async getCourses() {
         const currentDate = new Date();

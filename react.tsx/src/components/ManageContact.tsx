@@ -52,6 +52,8 @@ export default function ManageContact() {
             const res = await getComments();
             switch (res[0]) {
                 case 200:
+                    console.log(res[1]);
+
                     // Assuming res[1] is an array of comments
                     // Set the showNewChip property to true for all comments initially
                     const initialComments = res[1].map((c: Comment) => ({ ...c, showNewChip: c.status == 'new' }));
@@ -159,7 +161,7 @@ export default function ManageContact() {
             {error && <Alert severity="warning">Ooops... Fail to connect server, try later...</Alert>}
             {comment?.length == 0 && <Alert severity="success">Yaooo!! The contactList is empty....<a href="/management" style={{ color: 'blue' }}>🧑‍💼Go Management</a></Alert>}
             <List sx={{ width: '60vw', height: '50vh', bgcolor: 'background.paper' }}>
-                {comment?.map((value: Comment) => {
+                {comment?.map((value: any) => {
                     return (
                         <>
                             <Divider variant="inset" component="li" />
@@ -172,10 +174,10 @@ export default function ManageContact() {
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'center',
-                                        bgcolor: mapFirstLetterToColor(value.user.firstName[0]),
+                                        bgcolor: mapFirstLetterToColor(value.user ? value.user.firstName[0] : value.firstName),
                                     }}
-                                        avatar={<Avatar>{value.user.firstName[0]}</Avatar>}
-                                        label={value.user.firstName + ' ' + value.user.lastName}
+                                        avatar={<Avatar>{value.user ? value.user.firstName[0] : value.firstName[0]}</Avatar>}
+                                        label={(value.user ? value.user.firstName : value.firstName) + ' ' + (value.user ? value.user.lastName : '')}
                                     />
                                 </ListItemAvatar>
 

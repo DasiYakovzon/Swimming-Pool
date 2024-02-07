@@ -18,7 +18,7 @@ import { CoursesController } from 'src/courses/courses.controller';
 import { ScheduleController } from 'src/schedule/schedule.controller';
 import { ScheduleService } from 'src/schedule/schedule.service';
 import { Schedule, ScheduleSchema } from 'src/Schemas/schedule/schedule';
-import { CourseSchema, Courses, CoursesType } from 'src/Schemas/courses/courses';
+import { CourseSchema, Courses } from 'src/Schemas/courses/courses';
 import { CoursesModule } from 'src/courses/courses.module';
 import { ScheduleModule } from 'src/schedule/schedule.module';
 import { SubscriptionController } from 'src/subscription/subscription.controller';
@@ -39,6 +39,9 @@ import { EnrollementController } from 'src/enrollement/enrollment.controller';
 import { EnrollementModule } from 'src/enrollement/enrollment.module';
 import { EmailService } from 'src/email/email.service';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ddd, dddSchema } from 'src/Schemas/user.schema copy';
+import { EmailController } from 'src/email/email.controller';
+import { EmailModule } from 'src/email/email.module';
 // import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
@@ -68,23 +71,26 @@ import { MailerModule } from '@nestjs-modules/mailer';
       },
       preview: true,
     }),
-    
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: CreditDetails.name, schema: CreditDetailsSchema }]),
-    MongooseModule.forFeature([{ name: Schedule.name, schema: ScheduleSchema }]),
-    MongooseModule.forFeature([{ name: Courses.name, schema: CourseSchema }]),
     MongooseModule.forFeature([{ name: Subscription.name, schema: SubscriptionSchema }]),
     MongooseModule.forFeature([{ name: Satisfaction.name, schema: SatisfactionSchema }]),
     MongooseModule.forFeature([{ name: Comments.name, schema: CommentSchema }]),
     MongooseModule.forFeature([{ name: Enrollment.name, schema: EnrollmentSchema }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: CreditDetails.name, schema: CreditDetailsSchema }]),
+    MongooseModule.forFeature([{ name: Schedule.name, schema: ScheduleSchema }]),
+    MongooseModule.forFeature([{ name: Courses.name, schema: CourseSchema }]),
+    MongooseModule.forFeature([{ name: ddd.name, schema: dddSchema }]),
+
   ],
-  controllers: [AppController, AuthController, UsersController, PaymentDetailsController, CoursesController, ScheduleController, SubscriptionController, SatisfactionController, CommentsController, EnrollementController],
+  controllers: [AppController, AuthController, UsersController, PaymentDetailsController
+    , CoursesController, ScheduleController,
+    SubscriptionController, SatisfactionController, CommentsController, EnrollementController, EmailController],
   providers: [CoursesService, AppService, UsersModule, UsersService, JwtService, AuthService,
     PaymentDetailsService, PaymentDetailsModule,
     CoursesModule, ScheduleModule, CoursesService, ScheduleService, SubscriptionModule,
     SubscriptionService, SatisfactionService,
     SatisfactionModule, CommentsModule, CommentsService, EnrollmentService, EnrollementModule,
-    EmailService],
+    EmailModule, EmailService],
 })
 export class AppModule {
 }

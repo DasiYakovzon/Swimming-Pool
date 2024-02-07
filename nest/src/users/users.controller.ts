@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { User } from 'src/Schemas/user.schema';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/auth.guard';
@@ -10,7 +10,8 @@ import { AuthService } from 'src/auth/auth.service';
 
 @Controller('/')
 export class UsersController {
-    constructor(private usersService: UsersService, private readonly authService: AuthService) { }
+    constructor(private usersService: UsersService, private readonly authService: AuthService) {
+    }
 
     @HttpCode(HttpStatus.CREATED)
     @Post('register')
@@ -44,6 +45,8 @@ export class UsersController {
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(Role.Admin, Role.User)
     updateUserDetails(@Body('userDetails') user: any, @Req() request: any) {
+        console.log(user);
+
         return this.usersService.update(this.authService.extractTokenFromHeader(request), user);
     }
 
@@ -59,5 +62,15 @@ export class UsersController {
     @Roles(Role.Admin)
     getAllUserDetails(@Query('email') email: string) {
         return this.usersService.getAllUserDetails(email);
+    }
+
+
+    @HttpCode(HttpStatus.OK)
+    @Delete(':id')
+    @Roles(Role.Admin)
+    deleteUser(@Param('id') id: string) {
+        console.log('ui', id);
+
+        return this.usersService.deleteUser(id);
     }
 }

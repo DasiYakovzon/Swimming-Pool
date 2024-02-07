@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ripple from '../assets/SwimmingPool/Ripple.gif'
 import Box from '@mui/material/Box';
+import { sendTempToManager } from '../api/api';
 
 interface WeatherData {
     coord: {
@@ -35,6 +36,8 @@ const WeatherWidget: React.FC = () => {
             try {
                 const response = await axios.get(API_URL);
                 setWeatherData(response.data);
+                await sendTempToManager(response.data.main.temp);
+
             } catch (error) {
                 console.error('Error fetching weather data:', error);
             }
@@ -50,7 +53,7 @@ const WeatherWidget: React.FC = () => {
 
     if (!weatherData) {
         return <Box sx={{ display: 'flex' }}>
-            <img src={ ripple} />
+            <img src={ripple} />
         </Box>
 
     }

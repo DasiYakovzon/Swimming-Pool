@@ -5,18 +5,31 @@ import { Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import CourseCardAdmin from './CourseCardAdmin'
 
+export interface Course {
+    CoursesType: string
+    EndDate: Date
+    Gender: string
+    NumberOfMeeting: number
+    StartDate: Date
+    TeacherName: string
+    __v: number
+    _id: string
+    capacity: number
+    duration: number
+    price: number
+    register: number
+}
+
 export default function ManageCourses() {
 
-    const [courses, setCourses] = useState<[]>([])
+    const [courses, setCourses] = useState<Array<Course> | []>();
     const navigate = useNavigate();
     useEffect(() => {
-
         const fetchCourses = async () => {
             const res = await getManageCourses();
             setCourses(res);
-
         }
-        fetchCourses()
+        fetchCourses();
     }, [])
 
     const handleSubmit = () => {
@@ -46,7 +59,7 @@ export default function ManageCourses() {
                         gap: '20px',
                     }}
                 >
-                    {courses.map((cardData: any, index: number) => (
+                    {courses?.sort((a: Course, b: Course) => new Date(b.StartDate).getTime() - new Date(a.StartDate).getTime()).map((cardData: any, index: number) => (
                         <CourseCardAdmin key={index} prop={cardData} />
                     ))}
                 </div>

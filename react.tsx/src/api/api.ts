@@ -41,6 +41,21 @@ export const getDetails = async () => {
 
 }
 
+export const deleteUser = async (id: string) => {
+    try {
+        const res = await api.delete(`${config.api}/${id}`, {
+            headers: { 'authorization': GetCookie() }
+        });
+
+        return res.status;
+
+    }
+    catch (err: any) {
+        return err?.response?.status;
+    }
+    ;
+}
+
 
 // Method to remove data from cookies
 export const RemoveCookie = () => {
@@ -124,6 +139,21 @@ export const checkIsManager = async () => {
     }
 }
 
+
+export const sendTempToManager = async (temp: number) => {
+    console.log('tr', temp)
+    try {
+        const res = await api.post(`${config.api}/email/${temp}`, {}, {
+            headers: {
+                'authorization': GetCookie()
+            }
+        });
+        return res.status;
+    }
+    catch (error: any) {
+        return error?.response?.status;
+    }
+}
 
 export const getAllUserDetails = async (email: string) => {
     try {
@@ -292,6 +322,8 @@ export const registerToCourse = async (courseId: string) => {
 export const getCourses = async () => {
     try {
         const res = await api.get(`${config.api}/course/get`);
+        console.log(res.data);
+
         return res.data;
     } catch (error: any) {
         console.error('Error:', error);

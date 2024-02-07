@@ -7,6 +7,7 @@ import { CustomButtonInput } from '@fullcalendar/core/index.js';
 import { grey } from '@mui/material/colors';
 import { Alert } from '@mui/material';
 import ScheduleDetailCard from './ScheduleDetailCard';
+import { PDFDownloadLink, Page, Text, View, Document } from '@react-pdf/renderer';
 
 export default function ColumnSpanningDerived() {
   const [schedule, setSchedule] = useState([]);
@@ -14,6 +15,20 @@ export default function ColumnSpanningDerived() {
   const [error, setError] = useState("");
   const calendarRef = useRef<FullCalendar | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  const MyDoc = ({ events }: { events: any[] }) => (
+    <Document>
+      <Page size="A4">
+        <View>
+          {events.map((event, index) => (
+            <Text key={index}>
+              {event.title} - {event.date}
+            </Text>
+          ))}
+        </View>
+      </Page>
+    </Document>
+  );
 
   const getEventColor = (courseType: string) => {
     const index = courseTypes.indexOf(courseType);
@@ -40,6 +55,8 @@ export default function ColumnSpanningDerived() {
     }
 
   };
+
+
   useEffect(() => {
     const fetchCourseTypes = async () => {
       const types = await getCoursesType();
@@ -115,28 +132,28 @@ export default function ColumnSpanningDerived() {
     } else {
       clickedDate = arg.date;
     }
-  
+
     setSelectedDate(clickedDate);
-  
+
     // Filter the schedule to get events for the clicked day (all events starting on this day)
     const clickedDateEvents = schedule.filter((course: any) => {
       const timeBegin = new Date(course.TimeBegin);
       const eventYear = timeBegin.getFullYear();
       const eventMonth = timeBegin.getMonth();
       const eventDay = timeBegin.getDate();
-  
+
       const clickedYear = clickedDate.getFullYear();
       const clickedMonth = clickedDate.getMonth();
       const clickedDay = clickedDate.getDate();
-  
+
       return eventYear === clickedYear && eventMonth === clickedMonth && eventDay === clickedDay;
     });
-  
+
     // Set the filtered events for the clicked day
     setClickedDateEvents(clickedDateEvents);
   };
 
-  
+
   const customButtons: { [name: string]: CustomButtonInput } = {
     prev: {
       text: '<',
@@ -186,6 +203,7 @@ export default function ColumnSpanningDerived() {
           </div>
         )}
       </div>
+
       <div>
         {!error && (
           <div style={{ height: '90vh', width: '60vw', marginTop: 20, padding: 0 }}>
@@ -200,7 +218,19 @@ export default function ColumnSpanningDerived() {
           </div>
         )}
       </div>
+      <div>
+        {!error && (
+          <div>
+            <PDFDownloadLink document={<MyDoc events={events} />} fileName="schedule.pdf">
+              {({ blob, url, loading, error }) =>
+                loading ? 'Loading document...' : 'Download PDF'
+              }
+            </PDFDownloadLink>
+          </div>
+        )}
+      </div>
     </div>
+
 
 
   );

@@ -9,9 +9,7 @@ import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class EnrollmentService {
-    /**
-     *
-     */
+  
     constructor(
         @InjectModel('Enrollment') private readonly enrollmentModel: Model<EnrollmentDocument>,
         private authService: AuthService,

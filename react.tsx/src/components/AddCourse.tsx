@@ -96,15 +96,15 @@ export default function AddCourse() {
         course.capacity,
       )
 
-      setFormErrors({ startDate: false, endDate: false })
+      setFormErrors({ startDate: false, endDate: false });
       let [newCourse, schedule] = [, ''];
       if (res != false) {
         setFail(false);
-        [newCourse, schedule] = res
-        nav('/courseSchedule', { state: { res } })
+        [newCourse, schedule] = res;
+        nav('/courseSchedule', { state: { res } });
       } else {
-        setFail(true)
-        setFormErrors({ startDate: true, endDate: true })
+        setFail(true);
+        setFormErrors({ startDate: true, endDate: true });
       }
     }
   }

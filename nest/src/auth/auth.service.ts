@@ -6,7 +6,6 @@ import * as bcrypt from 'bcrypt';
 import { Role } from 'src/Roles/Role.enum';
 import { Request } from 'express';
 import { User } from 'src/Schemas/user.schema';
-import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class AuthService {

@@ -29,6 +29,7 @@ const images = [image1, image2, image3, image3, image4, image5, image6, image7, 
 export default function CourseCardAdmin(props: any) {
   const date = new Date();
   const endDate = new Date(props.prop.EndDate);
+  const startDate = new Date(props.prop.StartDate);
 
   const [openDialog, setOpenDialog] = useState(false);
   const isRegistrationFull = props.prop.capacity <= props.prop.register;
@@ -60,12 +61,15 @@ export default function CourseCardAdmin(props: any) {
       </CardContent>
       <CardActions>
         {endDate < date ? <Button size="small" onClick={handleDialogToggle} style={{ color: 'orange' }} >
-          Finished        </Button> : isRegistrationFull ? <Button size="small" onClick={handleDialogToggle} style={{ color: 'red' }} >
+          Finished        </Button>
+          : isRegistrationFull ? <Button size="small" onClick={handleDialogToggle} style={{ color: 'red' }} >
             Registration is complete
+          </Button> : startDate < date && endDate > date ? <Button size="small" onClick={handleDialogToggle} style={{ color: 'green' }}>
+            Started
           </Button> :
-          <Button size="small" onClick={handleDialogToggle}>
-            More Details
-          </Button>}
+            <Button size="small" onClick={handleDialogToggle}>
+              More Details
+            </Button>}
       </CardActions>
       {openDialog && <AlertDialogSlide prop={props.prop} onClose={handleDialogToggle} />}
     </Card>
