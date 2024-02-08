@@ -1,15 +1,18 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import moment from 'moment-timezone';
 import { Model, ObjectId } from 'mongoose';
 import { Courses, CoursesType, coursesDocument } from 'src/Schemas/courses/courses';
+import { EmailService } from 'src/email/email.service';
+import { EnrollmentService } from 'src/enrollement/enrollment.service';
 import { ScheduleService } from 'src/schedule/schedule.service';
-
 @Injectable()
 export class CoursesService {
-    
+
     constructor(@InjectModel('Courses') private readonly CourseModel: Model<coursesDocument>,
-        @Inject(forwardRef(() => ScheduleService)) private schedule: ScheduleService) {
+        @Inject(forwardRef(() => ScheduleService)) private schedule: ScheduleService,
+        @Inject(forwardRef(() => EnrollmentService)) private enrollment: EnrollmentService,
+        private readonly email: EmailService
+    ) {
     }
 
     async create(course: Courses) {
@@ -94,4 +97,30 @@ export class CoursesService {
     }
 
 
+
+    async deleteCourse(id: ObjectId | Courses) {
+
+        const session = await this.CourseModel.startSession();
+        session.startTransaction();
+        try {
+
+            let deletedCourse = await this.CourseModel
+                .findByIdAndDelete(id)
+                .session(session)
+                .exec();
+            // await this.CourseModel.findByIdAndDelete(id).session(session);
+            const users = await this.enrollment.deleteEnrollment(id, session);
+            await this.schedule.deleteCourse(id, session);
+            await this.email.sendEmailCanceledCourse(users, deletedCourse.CoursesType);
+            // Commit the transaction
+            await session.commitTransaction();
+        } catch (error) {
+            // If an error occurs, abort the transaction
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            // End the session
+            session.endSession();
+        }
+    }
 }

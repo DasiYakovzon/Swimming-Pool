@@ -1,6 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, Types } from 'mongoose';
+import mongoose, { ClientSession, Model, ObjectId, Types } from 'mongoose';
 import { Courses } from 'src/Schemas/courses/courses';
 import { Schedule, ScheduleDocument } from 'src/Schemas/schedule/schedule';
 import { CoursesService } from 'src/courses/courses.service';
@@ -18,7 +18,7 @@ export class ScheduleService {
     @InjectModel('User') private userService: UsersService,
     private readonly emailService: EmailService
   ) { }
-  
+
   async checkAddCourse(startDate: Date, endDate: Date, numHours: number): Promise<boolean> {
     const currentDate = new Date(startDate);
     const localEndDate = new Date(endDate);
@@ -158,5 +158,11 @@ export class ScheduleService {
     cron.schedule('00 21 * * *', () => {
       this.checkEnrollmentsForNextDay();
     });
+  }
+
+  async deleteCourse(id: ObjectId | Courses, session: ClientSession) {
+    return await this.ScheduleModel.deleteMany((s: Schedule) => {
+      s.Course == id;
+    }).session(session);
   }
 }

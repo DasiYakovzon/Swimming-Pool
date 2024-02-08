@@ -80,7 +80,6 @@ import { EmailModule } from 'src/email/email.module';
     MongooseModule.forFeature([{ name: Schedule.name, schema: ScheduleSchema }]),
     MongooseModule.forFeature([{ name: Courses.name, schema: CourseSchema }]),
     MongooseModule.forFeature([{ name: ddd.name, schema: dddSchema }]),
-
   ],
   controllers: [AppController, AuthController, UsersController, PaymentDetailsController
     , CoursesController, ScheduleController,

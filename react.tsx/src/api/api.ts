@@ -302,6 +302,28 @@ export const getCoursesType = async () => {
         return error?.response?.status;
     }
 }
+
+
+export const getEnrollment = async (courseId: string) => {
+    try {
+        const res = await api.get(`${config.api}/enrollement`, {
+            params: {
+                courseId: courseId, // Convert the date to ISO string format
+            },
+            headers: {
+                authorization: GetCookie(),
+            }
+        });
+
+        console.log(res.data, "ff");
+
+        return res.data;
+    } catch (error: any) {
+        console.error('Error:', error);
+        console.log('Response status:', error?.response?.status);
+        return error?.response?.status;
+    }
+}
 export const registerToCourse = async (courseId: string) => {
     try {
         const token = GetCookie(); // Assuming this function retrieves the authorization token

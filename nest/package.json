@@ -47,7 +47,8 @@
     "pdf-lib": "^1.17.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "set-tz": "^0.2.0"
+    "set-tz": "^0.2.0",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

@@ -21,6 +21,7 @@ import image7 from "../assets/SwimmingPool/DreamShaper_v7_A_swimming_pool_withou
 import image8 from "../assets/SwimmingPool/DreamShaper_v7_Background_of_blue_water_with_bubbles_1.jpg";
 import image9 from "../assets/SwimmingPool/DreamShaper_v7_Background_of_blue_water_with_bubbles_3.jpg";
 import image10 from "../assets/SwimmingPool/DreamShaper_v7_Background_of_blue_water_with_shifts_and_bubble_1.jpg";
+import { getEnrollment } from '../api/api';
 
 
 const images = [image1, image2, image3, image3, image4, image5, image6, image7, image8, image9, image10];
@@ -56,8 +57,7 @@ export default function CourseCardAdmin(props: any) {
           {props.prop.Gender === 'Male' ? <BoyIcon /> : <GirlIcon />}Gender: {props.prop.Gender}
         </Typography>
         <Typography variant="body2" color="text.secondary" ><PeopleAltIcon /> Capacity: {props.prop.capacity}</Typography>
-        <Typography variant="body2" color="text.secondary"><HowToRegIcon /> Register: {props.prop.register}</Typography>
-
+        <Typography variant="body2" color="blue" onClick={() => getEnrollment(props.prop._id)} style={{ cursor: 'pointer' }}><HowToRegIcon /> Register: {props.prop.register}</Typography>
       </CardContent>
       <CardActions>
         {endDate < date ? <Button size="small" onClick={handleDialogToggle} style={{ color: 'orange' }} >

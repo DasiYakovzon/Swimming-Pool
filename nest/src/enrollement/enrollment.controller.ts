@@ -1,10 +1,12 @@
-import { Controller, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { EnrollmentService } from './enrollment.service';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/Roles/roles.guard';
 import { Role } from 'src/Roles/Role.enum';
 import { Roles } from 'src/Roles/roles.decorator';
+import { ObjectId } from 'mongoose';
+import { Courses } from 'src/Schemas/courses/courses';
 
 @Controller('enrollement')
 export class EnrollementController {
@@ -26,4 +28,21 @@ export class EnrollementController {
             return { error: error.message };
         }
     }
+
+    @HttpCode(HttpStatus.OK)
+    @Get()
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.Admin)
+    async getEnrollments(@Query('courseId') courseId: ObjectId | Courses, @Req() request) {
+        try {
+
+            console.log(courseId);
+
+            return await this.EnrollmentService.getCourseEnrollment(courseId);
+        } catch (error) {
+            return { error: error.message };
+        }
+    }
+
+
 }

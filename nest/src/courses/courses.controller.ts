@@ -1,10 +1,11 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Res, UseGuards } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { Courses } from 'src/Schemas/courses/courses';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/Roles/roles.guard';
 import { Role } from 'src/Roles/Role.enum';
 import { Roles } from 'src/Roles/roles.decorator';
+import { ObjectId } from 'mongoose';
 
 @Controller('course')
 export class CoursesController {
@@ -38,6 +39,16 @@ export class CoursesController {
     @Get('getAll')
     async getAllCourses() {
         return await this.service.getAllCourses();
+    }
+
+
+    @HttpCode(HttpStatus.OK)
+    @Delete(':id')
+    @Roles(Role.Admin)
+    deleteUser(@Param('id') id: ObjectId | Courses) {
+        console.log('ui', id);
+
+        return this.service.deleteCourse(id);
     }
 
 }

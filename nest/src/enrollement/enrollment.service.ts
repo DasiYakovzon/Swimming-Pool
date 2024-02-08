@@ -1,7 +1,8 @@
 import { HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
-import { EnrollmentDocument } from 'src/Schemas/Enrollment/enrollment';
+import mongoose, { ClientSession, Model, ObjectId } from 'mongoose';
+import { Enrollment, EnrollmentDocument } from 'src/Schemas/Enrollment/enrollment';
+import { Courses } from 'src/Schemas/courses/courses';
 import { User } from 'src/Schemas/user.schema';
 import { AuthService } from 'src/auth/auth.service';
 import { CoursesService } from 'src/courses/courses.service';
@@ -53,5 +54,17 @@ export class EnrollmentService {
     async findByUserId(user_id: Object | User) {
 
         return (await this.enrollmentModel.find({ user: user_id }).exec());
+    }
+
+    async getCourseEnrollment(courseId:ObjectId | Courses) {
+        return await this.enrollmentModel.find({ course: courseId }).populate('user');
+    }
+
+    async deleteEnrollment(courseId: ObjectId | Courses,session:ClientSession) {
+        const users = this.getCourseEnrollment(courseId);
+        await this.enrollmentModel.deleteMany((e: Enrollment) => {
+            e.course == courseId
+        }).session(session);
+        return users;
     }
 }
