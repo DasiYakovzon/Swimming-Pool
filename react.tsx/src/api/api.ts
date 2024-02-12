@@ -578,9 +578,8 @@ export const addSatisfaction = async (Service: number,
                 authorization: GetCookie(),
             },
         });
-        console.log("gggg:" + res.data);
 
-        return res.data;
+        return [res.data, res.status];
     } catch (error: any) {
         console.error('Error:', error);
         console.log('Response status:', error?.response?.status);

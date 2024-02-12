@@ -30,7 +30,7 @@ function Home() {
     const [showModal, setShowModal] = useState(false);
     const [isManager, setIsManager] = useState<boolean>(false);
     const [showAccountMenu, setShowAccountMenu] = useState(false);
-    const [userChanger, setUserChanger] = useState(0);
+    const [userChanger, setUserChanger] = useState(1);
     const handleNavigation = (path: string) => {
         navigate(path);
     };
@@ -161,7 +161,10 @@ function Home() {
                     onClick={() => handleNavigation('/management')}
                 />}
 
-                {userChanger && <AccountMenu userChanger={userChanger} showAccountMenu={showAccountMenu} setShowAccountMenu={setShowAccountMenu} setIsManager={setIsManager} />}
+                {userChanger &&
+                    <AccountMenu userChanger={userChanger} showAccountMenu={showAccountMenu}
+                        setShowAccountMenu={setShowAccountMenu}
+                        setIsManager={setIsManager} />}
             </BottomNavigation>
             <Outlet />
             <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="xs" fullWidth>

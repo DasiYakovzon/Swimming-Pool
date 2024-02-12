@@ -87,7 +87,6 @@ export class CommentsService {
         .populate('user')
         .populate({ path: 'to' }) // Populate the 'to' field if it exists
         .sort({ date: -1 }) // Sort in descending order based on the 'date' field
-        .limit(20) // Limit the results to 20 comments
         .exec();
       return comments;
     } catch (error) {
@@ -101,7 +100,7 @@ export class CommentsService {
       const decodedToken = await this.authService.decoded(token);
       const user_id = await this.usersService.findOneByEmail(decodedToken['email']);      // const comments = await this.CommentsModel.find({ status: status.new }).populate('user').exec();
       const comments = await this.CommentsModel
-        .find({ $or: [{ user: user_id, statusReply: status.new }, { to: user_id }] })
+        .find({ $or: [{ user: user_id, statusReply: status.new }, { to: user_id, status: status.new }] })
         .count()
         .exec();
       return comments;

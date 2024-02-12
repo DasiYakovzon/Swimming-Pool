@@ -45,6 +45,7 @@ function Row(props: any) {
   const { row } = props;
   const [replyContent, setReplyContent] = useState(''); // Add replyContent state
   const [open, setOpen] = useState(false);
+
   const handleReplyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setReplyContent(event.target.value);
   };
@@ -65,7 +66,6 @@ function Row(props: any) {
 
   async function handleStatus(): Promise<void> {
     const resStatus = await updateComment(row._id);
-
     switch (resStatus) {
       case 200:
         row.status = "old";
@@ -107,11 +107,13 @@ function Row(props: any) {
     };
   }
 
+  useEffect(() => { }, [row.status]);
+
   return (
     <Fragment >
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell>
-          {(row.status === 'old' && !row.to) ?
+          {(row.reply && !row.to) &&
             <IconButton
               aria-label="expand row"
               size="small"
@@ -120,12 +122,18 @@ function Row(props: any) {
             >
               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </IconButton>
-            :
+          }
+          {
+            row.to &&
             <IconButton
               edge="end"
               aria-label="comments"
               sx={{ marginLeft: 'auto' }}
-              onClick={() => !row.reply && setOpen(!open)}>
+              onClick={() => {
+                (!row.reply) && row.status == 'new' &&
+                  handleStatus();
+                setOpen(!open);
+              }}>
               {(!(row.reply)) ? <CommentIcon /> : <TaskAltIcon />}
             </IconButton>
           }
@@ -135,7 +143,7 @@ function Row(props: any) {
         </TableCell>
         <TableCell align="right">{formatDate(row.date)}</TableCell>
         <TableCell align="right">
-          {((row.statusReply === "new" && (!row.to)) || (row.status === "new" && row.to)) && (
+          {((row.statusReply == "new" && (!row.to)) || (row.status === "new" && row.to)) && (
             <Stack direction="row" spacing={1} sx={{ marginLeft: '10px' }}>
               <Chip label="new" color="error" />
             </Stack>
@@ -188,14 +196,13 @@ function Row(props: any) {
           </Collapse>
         </TableCell>
       </TableRow>
-    </Fragment>
+    </Fragment >
   );
 }
 
 export default function CollapsibleTable() {
   const [list, setList] = useState<Comment[]>([]); // Specify the type of 'list'
   const [error, setError] = useState<string | null>(null);
-
   const tableRef = React.createRef<HTMLDivElement>(); // Ref for the table container
 
   useEffect(() => {
@@ -204,7 +211,7 @@ export default function CollapsibleTable() {
       try {
         const res = await getCommentAndReply();
         if (res[0] === 200) {
-          setList((prevList) => [...prevList, ...res[1]]);
+          setList(res[1]);
         }
       } catch (error) {
 

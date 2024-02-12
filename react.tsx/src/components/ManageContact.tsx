@@ -20,6 +20,7 @@ import Box from '@mui/material/Box';
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 
 interface Comment {
@@ -46,15 +47,16 @@ export default function ManageContact() {
     const [error, setError] = useState(false);
     const [comment, setComment] = useState<Comment[]>([]);
     const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null); // Track the selected comment
-    const nav = useNavigate();
     const [replyContent, setReplyContent] = useState(''); // Add replyContent state
     const [showForm, setShowForm] = useState(false);
-    const handleReplyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setReplyContent(event.target.value);
-    };
+    const nav = useNavigate();
     const [Sent, setSent] = useState("Try Later...:(");
     const [open, setOpen] = useState(false);
 
+
+    const handleReplyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setReplyContent(event.target.value);
+    };
 
     useEffect(() => {
 
@@ -70,7 +72,7 @@ export default function ManageContact() {
             switch (res[0]) {
                 case 200:
                     console.log(res[1]);
-                    const initialComments = res[1].map((c: Comment) => ({ ...c, showNewChip: c.status == 'new' || (c.statusReply == 'new' && c.to) }));
+                    const initialComments = res[1].map((c: Comment) => ({ ...c, showNewChip: (!c.to && c.status == 'new') || (c.statusReply == 'new' && c.to) }));
                     setComment(initialComments);
                     break;
                 case 401:
@@ -85,7 +87,7 @@ export default function ManageContact() {
         };
 
         fetchDetails();
-    }, [Sent,]);
+    }, [Sent, selectedCommentId,]);
 
     const handleSubmit2 = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -121,11 +123,12 @@ export default function ManageContact() {
         }
     }
 
-    async function handleStatusReply(commentId: string): Promise<void> {
+    function selectComment(commentId: string) {
         setSelectedCommentId(prevId => (prevId === commentId ? null : commentId));
+    }
 
+    async function handleStatusReply(commentId: string): Promise<void> {
         const resStatus = await updateReplyStatusOfComment(commentId);
-        alert("dgrnghjkhgfbdvscs")
         switch (resStatus) {
             case 200:
                 const updatedComments = comment?.map((c: Comment) =>
@@ -192,7 +195,6 @@ export default function ManageContact() {
             'pink',
             'bedge',
             'lightblue'
-            // Add more colors as needed
         ];
 
         // Use the character code of the first letter to get an index for the color array
@@ -278,7 +280,7 @@ export default function ManageContact() {
                             <Divider variant="inset" component="li" />
                             <ListItem alignItems="center" key={0} disablePadding>
 
-                                <ListItemAvatar >
+                                <ListItemAvatar sx={{ visibility: value.to ? 'hidden' : 'visible' }}>
                                     <Chip sx={{
                                         m: 1,
                                         width: '150px', // Adjust the width value according to your preference
@@ -310,7 +312,6 @@ export default function ManageContact() {
                                                 {formatDate(value.date)}
                                             </Fragment>
                                         }
-
                                     />
                                     <ListItemText
                                         primary={
@@ -331,31 +332,39 @@ export default function ManageContact() {
 
                                     />
                                 </div>
-                                {(!value.to && !value.replyContent) ?
+                                {!value.to ?
                                     <IconButton
                                         edge="end"
                                         aria-label="comments"
                                         sx={{ marginLeft: 'auto' }}
-                                        onClick={() => (!(value.isSubmit) && (!(value.reply))) && handleCommentIconClick(value._id)}>
-                                        {(!(value.isSubmit) && (!(value.reply))) ? <CommentIcon /> : <TaskAltIcon />}
-                                    </IconButton> :
-                                    <button style={{ marginLeft: 'auto', marginRight: 0, display: 'flex' }} onClick={() => { value.reply && handleStatusReply(value._id) }}>
-                                        <div style={{ marginLeft: 'auto', marginRight: 0 }}>
-                                            <Typography variant="body2" >To:</Typography>
+                                        onClick={() => (!(value.isSubmit) && (!(value.reply)))
+                                            ? handleCommentIconClick(value._id) : selectComment(value._id)}>
+                                        {(!value.isSubmit && !value.reply) ? <CommentIcon />
+                                            : <TaskAltIcon />
+                                        }
+                                    </IconButton>
+                                    :
+                                    <button style={{ marginLeft: 'auto', marginRight: 0, display: 'flex' }}
+                                        onClick={() => {
+                                            value.reply && value.statusReply == 'new' && handleStatusReply(value._id);
+                                            value.reply && selectComment(value._id)
+                                        }}>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
                                             <ForwardToInboxIcon />
+                                            <ListItemAvatar sx={{ marginRight: 0 }}>
+                                                <Chip sx={{
+                                                    m: 1,
+                                                    width: '150px', // Adjust the width value according to your preference
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    bgcolor: mapFirstLetterToColor(value.to.firstName[0]),
+                                                }}
+                                                    avatar={<Avatar>{value.to.firstName[0]}</Avatar>}
+                                                    label={(value.to.firstName) + ' ' + (value.to.lastName)} />
+                                            </ListItemAvatar>
                                         </div>
-                                        <ListItemAvatar sx={{ marginRight: 0 }}>
-                                            <Chip sx={{
-                                                m: 1,
-                                                width: '150px', // Adjust the width value according to your preference
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                bgcolor: mapFirstLetterToColor(value.to.firstName[0]),
-                                            }}
-                                                avatar={<Avatar>{value.to.firstName[0]}</Avatar>}
-                                                label={(value.to.firstName) + ' ' + (value.to.lastName)} />
-                                        </ListItemAvatar>
+
                                     </button>
                                 }
                             </ListItem >
@@ -389,13 +398,13 @@ export default function ManageContact() {
                                     </Grid>
                                 </Grid>
                             ) : selectedCommentId === value._id ?
-                                <div style={{ textAlign: 'left' }}>
+                                <div style={{ textAlign: 'left', padding: '5px', backgroundColor: '#e8e4e4' }}>
                                     <Chip
-                                        avatar={<Avatar alt="Natacha" src="" />}
-                                        label={value.user.firstName}
+                                        avatar={value.to != undefined ? <Avatar alt="Natacha" src="" /> :<ManageAccountsIcon/>}
+                                        label={value.to != undefined ? value.to.firstName : "Administor"}
                                         variant="outlined"
                                         sx={{ color: '#0c88de', marginRight: '20px' }} />
-                                    {value.reply}
+                                    {value.reply} || {value.to == undefined && "fff"}
                                 </div> : ""
                             }
                         </>

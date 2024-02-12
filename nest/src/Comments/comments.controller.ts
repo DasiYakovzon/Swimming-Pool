@@ -47,7 +47,6 @@ export class CommentsController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Admin, Role.User)
   getAmountOfNewReplyes(@Req() request) {
-
     return this.commentsService.getAmountOfNewReply(this.authService.extractTokenFromHeader(request));
   }
 
@@ -66,7 +65,7 @@ export class CommentsController {
   @HttpCode(HttpStatus.OK)
   @Put(':commentId')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.User)
   async updateStatus(@Param('commentId') commentId: string) {
     return this.commentsService.updateStatus(commentId);
   }

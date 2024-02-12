@@ -133,7 +133,7 @@ export default function AccountMenu({ userChanger, showAccountMenu, setShowAccou
 
         fetchDetails();
 
-        const interval = setInterval(fetchDetails, 5 * 60 * 1000);
+        const interval = setInterval(fetchDetails, 5 * 60 * 100);
 
         return () => {
             clearInterval(interval); // Clear interval on component unmount
