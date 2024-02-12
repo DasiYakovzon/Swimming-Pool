@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getManageCourses } from '../api/api'
+import { checkIsManager, getManageCourses } from '../api/api'
 import { Box } from '@mui/material'
 import { Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
@@ -25,6 +25,13 @@ export default function ManageCourses() {
     const [courses, setCourses] = useState<Array<Course> | []>();
     const navigate = useNavigate();
     useEffect(() => {
+        const fetchIsManager = async () => {
+            const res = await checkIsManager();
+            if (res != 200)
+                navigate('/sign-in');
+        };
+        fetchIsManager();
+
         const fetchCourses = async () => {
             const res = await getManageCourses();
             setCourses(res);

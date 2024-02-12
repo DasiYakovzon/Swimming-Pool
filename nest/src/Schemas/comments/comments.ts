@@ -42,6 +42,10 @@ export class Comments {
   user?: Types.ObjectId | UserDocument;
 
   @ApiProperty()
+  @Prop({ type: Types.ObjectId, ref: 'User', required: false })
+  to?: Types.ObjectId | UserDocument;
+
+  @ApiProperty()
   @Prop({ required: true })
   date: Date;
   

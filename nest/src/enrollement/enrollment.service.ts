@@ -10,7 +10,7 @@ import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class EnrollmentService {
-  
+
     constructor(
         @InjectModel('Enrollment') private readonly enrollmentModel: Model<EnrollmentDocument>,
         private authService: AuthService,
@@ -52,15 +52,14 @@ export class EnrollmentService {
     }
 
     async findByUserId(user_id: Object | User) {
-
         return (await this.enrollmentModel.find({ user: user_id }).exec());
     }
 
-    async getCourseEnrollment(courseId:ObjectId | Courses) {
+    async getCourseEnrollment(courseId: ObjectId | Courses) {
         return await this.enrollmentModel.find({ course: courseId }).populate('user');
     }
 
-    async deleteEnrollment(courseId: ObjectId | Courses,session:ClientSession) {
+    async deleteEnrollment(courseId: ObjectId | Courses, session: ClientSession) {
         const users = this.getCourseEnrollment(courseId);
         await this.enrollmentModel.deleteMany((e: Enrollment) => {
             e.course == courseId

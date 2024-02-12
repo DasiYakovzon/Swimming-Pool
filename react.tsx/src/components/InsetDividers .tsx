@@ -57,7 +57,6 @@ const StyledListItemText = styled(ListItemText)(({ theme }) => ({
 const InsetDividers: React.FC<InsetDividersProps> = ({ data }) => {
   const startDate = dayjs(data.StartDate);
   const endDate = dayjs(data.EndDate);
-
   const formattedDate = startDate.format('DD-MM-YYYY') + (endDate ? " - " + endDate.format('DD-MM-YYYY') : '');
   const formattedTime = startDate.format('HH:mm') + (data.duration ? " Duration: " + data.duration : '');
 
@@ -69,7 +68,7 @@ const InsetDividers: React.FC<InsetDividersProps> = ({ data }) => {
             <SchoolIcon />
           </StyledAvatar>
         </ListItemAvatar>
-        <StyledListItemText primary={`Teacher Name: ${data.TeacherName}`} secondary={`Number of Meetings: ${data.NumberOfMeeting}` + (data.price ? ` , price: ${data.price}`:'')} />
+        <StyledListItemText primary={`Teacher Name: ${data.TeacherName}`} secondary={`Number of Meetings: ${data.NumberOfMeeting}` + (data.price ? ` , price: ${data.price}` : '')} />
       </StyledListItem>
       <Divider variant="inset" component="li" />
       <StyledListItem>

@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import image from "../assets/SwimmingPool/DreamShaper_v7_A_swimming_pool_without_swimmers_with_a_lot_of_1.jpg"
 import image2 from "../assets/SwimmingPool/DreamShaper_v7_Background_of_blue_water_with_bubbles_1.jpg"
 import image3 from "../assets/SwimmingPool/water-droplets-blue-water-drops-splashes-drop-water-close-up-blue-water-drop-macro-1024x596.jpg"
-
+import { useEffect } from 'react';
+import { checkIsManager } from '../api/api';
 const images = [
     {
         url: image,
@@ -28,7 +29,7 @@ const images = [
     },
 ];
 
-const ImageButton = styled(ButtonBase)(({  }) => ({
+const ImageButton = styled(ButtonBase)(({ }) => ({
     position: 'relative',
     width: '100%',
     height: '100%',
@@ -96,6 +97,15 @@ export default function Management() {
         nav(navigateTo);
     };
 
+    useEffect(() => {
+        const fetchIsManager = async () => {
+            const res = await checkIsManager();
+            if (res != 200)
+                nav('/sign-in');
+        };
+        fetchIsManager();
+    }, []);
+
     return (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', width: '90vw', height: '90vh', overflow: 'hidden' }}>
             {images.map((image) => (
@@ -115,7 +125,7 @@ export default function Management() {
                             variant="subtitle1"
                             color="inherit"
                             sx={{
-                                fontFamily:'revert',fontSize:'larger',
+                                fontFamily: 'revert', fontSize: 'larger',
                                 position: 'relative',
                                 p: 6,
                                 pt: 4,

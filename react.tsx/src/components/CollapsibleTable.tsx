@@ -14,10 +14,13 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Avatar from '@mui/material/Avatar';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
-import { getCommentAndReply, updateReplyStatusOfComment } from '../api/api';
+import { getCommentAndReply, replyComment, updateComment, updateReplyStatusOfComment } from '../api/api';
 import React from 'react';
 import Alert from '@mui/material/Alert';
-
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import CommentIcon from '@mui/icons-material/Comment';
+import { Button, Grid, TextField } from '@mui/material';
+import ReplyIcon from '@mui/icons-material/Reply';
 
 // Define the type for a comment item
 interface Comment {
@@ -40,9 +43,11 @@ const formatDate = (dateString: string) => {
 
 function Row(props: any) {
   const { row } = props;
-
+  const [replyContent, setReplyContent] = useState(''); // Add replyContent state
   const [open, setOpen] = useState(false);
-
+  const handleReplyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setReplyContent(event.target.value);
+  };
   const handleIconClick = async () => {
 
     setOpen(!open);
@@ -58,25 +63,79 @@ function Row(props: any) {
     }
   };
 
+  async function handleStatus(): Promise<void> {
+    const resStatus = await updateComment(row._id);
+
+    switch (resStatus) {
+      case 200:
+        row.status = "old";
+        // const updatedComments = comment?.map((c: Comment) =>
+        //     c._id === row. ? { ...c, showNewChip: false } : c
+        // );
+        // setComment(updatedComments);
+        break;
+
+      default:
+        break;
+    }
+  }
+  const handleSubmit = async (commentId: string) => {
+    // Update initialComments array based on the reply content
+    if (replyContent) {
+      //     // Update initialComments array based on the reply content
+      //     const updatedComments = comment.map((c: Comment) => {
+      //         if (c._id === commentId) {
+      //             return {
+      //                 ...c,
+      //                 showNewChip: false,
+      //                 content: `${c.content}\nReply: ${replyContent}`,
+      //                 isSubmit: true,
+      //             };
+      //         }
+      //         return c;
+      //     });
+
+      //     // Call the replyComment API function
+      const resStatus = await replyComment(replyContent, commentId);
+
+      if (resStatus === 200) {
+        // setComment(updatedComments);
+        row.reply = replyContent;
+        setOpen(false);
+        setReplyContent(''); // Clear replyContent after submission;
+      }
+    };
+  }
+
   return (
-    <Fragment>
+    <Fragment >
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell>
-          {row.status === 'old' && <IconButton
-            aria-label="expand row"
-            size="small"
-            title='reply'
-            onClick={handleIconClick}
-          >
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>}
+          {(row.status === 'old' && !row.to) ?
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              title='reply'
+              onClick={handleIconClick}
+            >
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+            :
+            <IconButton
+              edge="end"
+              aria-label="comments"
+              sx={{ marginLeft: 'auto' }}
+              onClick={() => !row.reply && setOpen(!open)}>
+              {(!(row.reply)) ? <CommentIcon /> : <TaskAltIcon />}
+            </IconButton>
+          }
         </TableCell>
-        <TableCell component="th" scope="row">
+        <TableCell component="th" scope="row" onClick={() => row.to && handleStatus()}>
           {row.content}
         </TableCell>
         <TableCell align="right">{formatDate(row.date)}</TableCell>
         <TableCell align="right">
-          {row.statusReply === "new" && (
+          {((row.statusReply === "new" && (!row.to)) || (row.status === "new" && row.to)) && (
             <Stack direction="row" spacing={1} sx={{ marginLeft: '10px' }}>
               <Chip label="new" color="error" />
             </Stack>
@@ -87,13 +146,44 @@ function Row(props: any) {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1, display: 'flex', flexDirection: 'row', gap: '20px', color: '#0c88de' }}>
-              <Chip
-                avatar={<Avatar alt="Natacha" src="/src/assets/SwimmingPool/logo2.png" />}
-                label="ParadisePool"
-                variant="outlined"
-                sx={{ color: '#0c88de' }}
-              />
-              {row.reply}
+              {(row.to) ?
+                <Grid container alignItems="center" justifyContent="flex-end">
+                  <Grid item xs={11}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      multiline
+                      rows={1}
+                      id="REPLY"
+                      label="REPLY"
+                      name="REPLY"
+                      autoFocus
+                      value={replyContent}
+                      onChange={handleReplyChange} // Add this
+                    />
+                  </Grid>
+                  <Grid item xs={1}>
+                    <Button
+                      type="submit"
+                      onClick={() => handleSubmit(row._id)}
+                      variant="contained"
+                      sx={{ mt: 0.5, mb: 0, height: '55px' }}
+                    >
+                      <ReplyIcon />
+                    </Button>
+                  </Grid>
+                </Grid>
+                : (
+                  <>
+                    <Chip
+                      avatar={<Avatar alt="Natacha" src="/src/assets/SwimmingPool/logo2.png" />}
+                      label="ParadisePool"
+                      variant="outlined"
+                      sx={{ color: '#0c88de' }} />{row.reply}
+                  </>
+                )
+              }
             </Box>
           </Collapse>
         </TableCell>
@@ -117,7 +207,7 @@ export default function CollapsibleTable() {
           setList((prevList) => [...prevList, ...res[1]]);
         }
       } catch (error) {
-        
+
         setError("Failed to fetch comments.");
 
       }
@@ -128,29 +218,30 @@ export default function CollapsibleTable() {
 
   return (
     <div>
-      {list.length > 0 ? <div ref={tableRef} style={{ maxHeight: '70vh', overflowY: 'auto' }}>
-        <TableContainer component={Paper}>
-          <Table aria-label="collapsible table">
-            <TableHead>
-              <TableRow>
-                <TableCell />
-                <TableCell>Content</TableCell>
-                <TableCell align="right">Date</TableCell>
-                <TableCell align="right"></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {list.map((row, index) => (
-                <Row key={index} row={row} />
-              ))
-              }
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </div> : error ? <Alert severity="error">{error}</Alert> :
-        <Alert severity="info">The Messages tab is empty.
-        Responses to your messages will appear here... </Alert>
- }
+      {list.length > 0 ?
+        <div ref={tableRef} style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          <TableContainer component={Paper}>
+            <Table aria-label="collapsible table">
+              <TableHead>
+                <TableRow>
+                  <TableCell />
+                  <TableCell>Content</TableCell>
+                  <TableCell align="right">Date</TableCell>
+                  <TableCell align="right"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {list.map((row, index) => (
+                  <Row key={index} row={row} />
+                ))
+                }
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div> : error ? <Alert severity="error">{error}</Alert> :
+          <Alert severity="info">The Messages tab is empty.
+            Responses to your messages will appear here... </Alert>
+      }
     </div>
   );
 }

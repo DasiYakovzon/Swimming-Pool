@@ -24,11 +24,11 @@ import image10 from "../assets/SwimmingPool/DreamShaper_v7_Background_of_blue_wa
 const images = [image1, image2, image3, image3, image4, image5, image6, image7, image8, image9, image10];
 
 export default function CourseCard(props: any) {
-  
+
   const [openDialog, setOpenDialog] = useState(false);
   const isRegistrationFull = props.prop.capacity <= props.prop.register;
-  const show=props.prop.CoursesType!='SwimmingForSubscribers'&&props.prop.CoursesType!='Free swimming';
- 
+  const show = props.prop.CoursesType != 'SwimmingForSubscribers' && props.prop.CoursesType != 'Free swimming';
+
 
   const handleDialogToggle = () => {
     setOpenDialog(!openDialog);
@@ -40,7 +40,7 @@ export default function CourseCard(props: any) {
   return (
     <Card sx={{ maxWidth: 500 }}>
       <CardMedia sx={{ height: 300, width: 300 }} image={randomImage} />
-      <CardContent>
+      <CardContent sx={{ textAlign: 'left' }}>
         <Typography gutterBottom variant="h6" component="div">
           <SupervisedUserCircleIcon /> {props.prop.CoursesType}
         </Typography>
@@ -49,7 +49,7 @@ export default function CourseCard(props: any) {
         </Typography>
       </CardContent>
       <CardActions>
-      {isRegistrationFull ? <Button size="small" onClick={handleDialogToggle} disabled={isRegistrationFull} style={{color:'red'}} >
+        {isRegistrationFull ? <Button size="small" onClick={handleDialogToggle} disabled={isRegistrationFull} style={{ color: 'red' }} >
           Registration is complete
         </Button> :
           <Button size="small" onClick={handleDialogToggle}>

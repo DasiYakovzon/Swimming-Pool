@@ -70,6 +70,10 @@ const router = createBrowserRouter([
         Component: ManageUsers,
       },
       {
+        path: 'manageCourses/viewRegisters',
+        Component: ManageUsers,
+      },
+      {
         path: 'AddCourse',
         Component: AddCourse,
       },
@@ -80,6 +84,12 @@ const router = createBrowserRouter([
       {
         path: 'manageCourses',
         Component: ManageCourses,
+        children: [
+          {
+            path: 'viewRegisters',
+            Component: ManageUsers
+          }
+        ]
       },
       {
         path: 'schedule',

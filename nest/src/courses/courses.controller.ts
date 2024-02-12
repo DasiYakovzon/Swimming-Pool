@@ -46,8 +46,6 @@ export class CoursesController {
     @Delete(':id')
     @Roles(Role.Admin)
     deleteUser(@Param('id') id: ObjectId | Courses) {
-        console.log('ui', id);
-
         return this.service.deleteCourse(id);
     }
 

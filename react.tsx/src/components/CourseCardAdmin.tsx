@@ -21,13 +21,15 @@ import image7 from "../assets/SwimmingPool/DreamShaper_v7_A_swimming_pool_withou
 import image8 from "../assets/SwimmingPool/DreamShaper_v7_Background_of_blue_water_with_bubbles_1.jpg";
 import image9 from "../assets/SwimmingPool/DreamShaper_v7_Background_of_blue_water_with_bubbles_3.jpg";
 import image10 from "../assets/SwimmingPool/DreamShaper_v7_Background_of_blue_water_with_shifts_and_bubble_1.jpg";
-import { getEnrollment } from '../api/api';
+import { useNavigate } from "react-router-dom";
+import { textAlign } from '@mui/system';
 
 
 const images = [image1, image2, image3, image3, image4, image5, image6, image7, image8, image9, image10];
 
 
 export default function CourseCardAdmin(props: any) {
+  const nav = useNavigate();
   const date = new Date();
   const endDate = new Date(props.prop.EndDate);
   const startDate = new Date(props.prop.StartDate);
@@ -46,10 +48,11 @@ export default function CourseCardAdmin(props: any) {
   const randomImageIndex = Math.floor(Math.random() * images.length);
   const randomImage = images[randomImageIndex];
 
+
   return (
     <Card sx={{ maxWidth: 500 }} >
       <CardMedia sx={{ height: 300, width: 300 }} image={randomImage} />
-      <CardContent>
+      <CardContent sx={{ textAlign: 'left' }}>
         <Typography gutterBottom variant="h6" component="div">
           <SupervisedUserCircleIcon /> {props.prop.CoursesType}
         </Typography>
@@ -57,7 +60,15 @@ export default function CourseCardAdmin(props: any) {
           {props.prop.Gender === 'Male' ? <BoyIcon /> : <GirlIcon />}Gender: {props.prop.Gender}
         </Typography>
         <Typography variant="body2" color="text.secondary" ><PeopleAltIcon /> Capacity: {props.prop.capacity}</Typography>
-        <Typography variant="body2" color="blue" onClick={() => getEnrollment(props.prop._id)} style={{ cursor: 'pointer' }}><HowToRegIcon /> Register: {props.prop.register}</Typography>
+        <Typography variant="body2" color="blue"
+          onClick={() => {
+            // getEnrollment(props.prop._id);
+            let id = props.prop._id;
+            if (props.prop.register > 0)
+              nav('/manageCourses/viewRegisters', { state: { id } }); // Navigate up one level to 'manageUsers'
+          }}
+          style={{ cursor: props.prop.register > 0 ? 'pointer' : 'auto' }}>
+          <HowToRegIcon /> Register: {props.prop.register}</Typography>
       </CardContent>
       <CardActions>
         {endDate < date ? <Button size="small" onClick={handleDialogToggle} style={{ color: 'orange' }} >

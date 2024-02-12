@@ -12,8 +12,8 @@ import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Dispatch, useEffect, useState } from 'react';
-import { getUsers, getAllUserDetails, deleteUser } from '../api/api';
-import { useNavigate } from 'react-router-dom';
+import { getUsers, getAllUserDetails, deleteUser, getEnrollment, checkIsManager } from '../api/api';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Chip from '@mui/material/Chip';
 import { PieChart, pieArcClasses } from '@mui/x-charts/PieChart';
 import { MakeOptional } from '@mui/x-date-pickers/internals';
@@ -246,10 +246,22 @@ export default function ManageUsers() {
   const [rows, setRows] = useState<any[]>([]);
   const [deleteIt, setDelete] = useState(false);
   const nav = useNavigate();
+  const location = useLocation();
+
+  const id = location.state?.id;
+  console.log(id);
 
   useEffect(() => {
+
+    const fetchIsManager = async () => {
+      const res = await checkIsManager();
+      if (res != 200)
+        nav('/sign-in');
+    };
+    fetchIsManager();
+
     const checkAdminStatus = async () => {
-      const res = await getUsers();
+      let res = location.pathname == '/manageUsers' ? await getUsers() : await getEnrollment(id);
       switch (res) {
         case 403:
           nav('/');
@@ -258,6 +270,9 @@ export default function ManageUsers() {
           nav('/sign-in');
           break;
         default:
+          if (location.pathname == '/manageCourses/viewRegisters') {
+            res = res.map((u: any) => u.user);
+          }
           if (Array.isArray(res)) {
             const usersData: ReturnType<typeof createData>[] = res.map(
               (row: any) =>
@@ -282,25 +297,26 @@ export default function ManageUsers() {
   }, [deleteIt]);
 
   return (
-    <TableContainer component={Paper} sx={{ width: '120vh', marginTop: '10px' }}>
-      <Table aria-label="user-table" sx={{ backgroundColor: 'rgb(238 236 236)' }}>
-        <TableHead>
-          <TableRow>
-            <TableCell>Details</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell align="right">Address</TableCell>
-            <TableCell align="right">Email</TableCell>
-            <TableCell align="right">Role</TableCell>
-            <TableCell>Edit </TableCell>
-            <TableCell>Delete</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody >
-          {rows.map((user) => (
-            <Row key={user.email} row={user} setDelete={setDelete} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <>
+      {location.pathname == '/manageCourses/viewRegisters' && <Link to={'/manageCourses'}>Back To Courses</Link>}<TableContainer component={Paper} sx={{ width: '120vh', marginTop: '10px' }}>
+        <Table aria-label="user-table" sx={{ backgroundColor: 'rgb(238 236 236)' }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Details</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell align="right">Address</TableCell>
+              <TableCell align="right">Email</TableCell>
+              <TableCell align="right">Role</TableCell>
+              <TableCell>Edit </TableCell>
+              <TableCell>Delete</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody >
+            {rows.map((user) => (
+              <Row key={user.email} row={user} setDelete={setDelete} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer></>
   );
 }

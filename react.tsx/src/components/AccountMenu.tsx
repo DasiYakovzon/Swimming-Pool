@@ -13,19 +13,11 @@ import PersonAdd from '@mui/icons-material/PersonAdd';
 import Settings from '@mui/icons-material/Settings';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 import { Fragment, MouseEvent } from 'react';
-import { RemoveCookie, getAmountNewReply, getDetails, updateUserDetails } from '../api/api';
+import { RemoveCookie, getAmountNewReply, getDetails } from '../api/api';
 import { useNavigate } from 'react-router-dom';
-import CloseIcon from '@mui/icons-material/Close';
-import Button from '@mui/material/Button';
 import MailIcon from '@mui/icons-material/Mail';
-import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
-import { Badge, Typography, styled } from '@mui/material';
-import updateGif from '../assets/SwimmingPool/update.gif'
+import { Badge, styled } from '@mui/material';
 import DialogUpdateDetails from './DialogUpdateDetails';
 
 interface UserDetails {
@@ -140,6 +132,13 @@ export default function AccountMenu({ userChanger, showAccountMenu, setShowAccou
         };
 
         fetchDetails();
+
+        const interval = setInterval(fetchDetails, 5 * 60 * 1000);
+
+        return () => {
+            clearInterval(interval); // Clear interval on component unmount
+        };
+
     }, [userChanger]);
 
     return (

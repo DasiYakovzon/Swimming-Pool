@@ -46,8 +46,8 @@ function Home() {
     const showInHome = location.pathname === '/';
 
     const fetchIsManager = async () => {
-
         const res = await checkIsManager();
+
         if (res == 200)
             setIsManager(true);
         else {
@@ -76,10 +76,10 @@ function Home() {
     }, []);
 
     useEffect(() => {
-    // Check if the user has just signed in successfully
+        // Check if the user has just signed in successfully
         const queryParams = new URLSearchParams(location.search);
         const isSignInSuccess = queryParams.get('success');
-        setUserChanger( userChanger + 1);
+        setUserChanger(userChanger + 1);
 
         if (isSignInSuccess) {
             setShowAccountMenu(true);

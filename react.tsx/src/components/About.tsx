@@ -2,7 +2,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import { useState } from 'react';
-import gif from '../assets/SwimmingPool/loading.gif'
+import gif from '../assets/SwimmingPool/loading.gif';
+
 const useStyles = makeStyles((theme) => ({
     root: {
         padding: theme.spacing(3),
@@ -12,11 +13,6 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: theme.spacing(2),
     },
 }));
-
- 
-
-
-
 
 export default function About() {
     const classes = useStyles();

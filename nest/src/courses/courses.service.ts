@@ -99,7 +99,6 @@ export class CoursesService {
 
 
     async deleteCourse(id: ObjectId | Courses) {
-
         const session = await this.CourseModel.startSession();
         session.startTransaction();
         try {
@@ -113,13 +112,12 @@ export class CoursesService {
             await this.schedule.deleteCourse(id, session);
             await this.email.sendEmailCanceledCourse(users, deletedCourse.CoursesType);
             // Commit the transaction
-            await session.commitTransaction();
+            return await session.commitTransaction();
         } catch (error) {
             // If an error occurs, abort the transaction
             await session.abortTransaction();
             throw error;
         } finally {
-            // End the session
             session.endSession();
         }
     }

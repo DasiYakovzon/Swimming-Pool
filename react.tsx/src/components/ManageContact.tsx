@@ -6,17 +6,20 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import CommentIcon from '@mui/icons-material/Comment';
-import IconButton from '@mui/material/IconButton';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import { Fragment, useEffect, useState } from 'react';
-import { getComments, replyComment, updateComment } from '../api/api';
-import { useNavigate } from 'react-router-dom';
+import { addCommentFromManger, checkIsManager, getComments, replyComment, updateComment, updateReplyStatusOfComment } from '../api/api';
+import { Link, useNavigate } from 'react-router-dom';
 import Alert from '@mui/material/Alert';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import { Button, Grid, TextField } from '@mui/material';
 import ReplyIcon from '@mui/icons-material/Reply';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import Box from '@mui/material/Box';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 
 
 interface Comment {
@@ -33,9 +36,11 @@ interface Comment {
         phone: string;
         role: string;
     };
+    to: string,
     showNewChip: boolean;
     reply: string;
     isSubmit: boolean;
+    statusReply: string;
 }
 export default function ManageContact() {
     const [error, setError] = useState(false);
@@ -43,20 +48,29 @@ export default function ManageContact() {
     const [selectedCommentId, setSelectedCommentId] = useState<string | null>(null); // Track the selected comment
     const nav = useNavigate();
     const [replyContent, setReplyContent] = useState(''); // Add replyContent state
+    const [showForm, setShowForm] = useState(false);
     const handleReplyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setReplyContent(event.target.value);
     };
+    const [Sent, setSent] = useState("Try Later...:(");
+    const [open, setOpen] = useState(false);
+
 
     useEffect(() => {
+
+        const fetchIsManager = async () => {
+            const res = await checkIsManager();
+            if (res != 200)
+                nav('/sign-in');
+        };
+        fetchIsManager();
+
         const fetchDetails = async () => {
             const res = await getComments();
             switch (res[0]) {
                 case 200:
                     console.log(res[1]);
-
-                    // Assuming res[1] is an array of comments
-                    // Set the showNewChip property to true for all comments initially
-                    const initialComments = res[1].map((c: Comment) => ({ ...c, showNewChip: c.status == 'new' }));
+                    const initialComments = res[1].map((c: Comment) => ({ ...c, showNewChip: c.status == 'new' || (c.statusReply == 'new' && c.to) }));
                     setComment(initialComments);
                     break;
                 case 401:
@@ -71,7 +85,24 @@ export default function ManageContact() {
         };
 
         fetchDetails();
-    }, []);
+    }, [Sent,]);
+
+    const handleSubmit2 = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        const email = data.get('email') || '';
+        const content = data.get('Content') || '';
+
+        const res = await addCommentFromManger({ email, content });
+        console.log('res', res);
+        if (res == 201) {
+            setOpen(true);
+            setSent("The message sent...");
+            setShowForm(false);
+        }
+
+        // setStatus(res);
+    };
 
 
     async function handleStatus(commentId: string): Promise<void> {
@@ -90,6 +121,22 @@ export default function ManageContact() {
         }
     }
 
+    async function handleStatusReply(commentId: string): Promise<void> {
+        setSelectedCommentId(prevId => (prevId === commentId ? null : commentId));
+
+        const resStatus = await updateReplyStatusOfComment(commentId);
+        alert("dgrnghjkhgfbdvscs")
+        switch (resStatus) {
+            case 200:
+                const updatedComments = comment?.map((c: Comment) =>
+                    c._id === commentId ? { ...c, status: "read" } : c
+                );
+                setComment(updatedComments);
+                break;
+            default:
+                break;
+        }
+    }
     const handleCommentIconClick = (commentId: string) => {
         setSelectedCommentId(prevId => (prevId === commentId ? null : commentId));
     };
@@ -160,6 +207,70 @@ export default function ManageContact() {
         <Fragment>
             {error && <Alert severity="warning">Ooops... Fail to connect server, try later...</Alert>}
             {comment?.length == 0 && <Alert severity="success">Yaooo!! The contactList is empty....<a href="/management" style={{ color: 'blue' }}>🧑‍💼Go Management</a></Alert>}
+            <Link onClick={() => { setShowForm(!showForm); }} to={''} style={{ marginTop: '10px' }}>new comment</Link>
+            {showForm &&
+                <Box component="form" onSubmit={handleSubmit2} sx={{ mt: 1, padding: 2, border: 'solid', borderRadius: 5, borderColor: 'blue' }}>
+                    <Grid item xs={12}>
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email"
+                            label="Email Address"
+                            name="email"
+                            autoComplete="email"
+                            autoFocus
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            multiline
+                            rows={3}
+                            id="Content"
+                            label="Content"
+                            name="Content"
+                        />
+                    </Grid>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6}>
+
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2 }}
+                            >
+                                Send
+                            </Button>
+                        </Grid>
+                        <Grid item xs={6}>
+
+                            <Button
+                                type="button"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2, backgroundColor: 'red' }}
+                                onClick={() => setShowForm(false)}
+                            >
+                                Close
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Box>}
+
+            <Snackbar open={open} autoHideDuration={6000} onClose={() => setOpen(false)}>
+                <Alert
+                    onClose={() => setOpen(false)}
+                    severity={Sent === 'Try Later...:(' ? "warning" : 'success'}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {Sent}
+                </Alert>
+            </Snackbar>
             <List sx={{ width: '60vw', height: '50vh', bgcolor: 'background.paper' }}>
                 {comment?.map((value: any) => {
                     return (
@@ -177,7 +288,7 @@ export default function ManageContact() {
                                         bgcolor: mapFirstLetterToColor(value.user ? value.user.firstName[0] : value.firstName),
                                     }}
                                         avatar={<Avatar>{value.user ? value.user.firstName[0] : value.firstName[0]}</Avatar>}
-                                        label={(value.user ? value.user.firstName : value.firstName) + ' ' + (value.user ? value.user.lastName : '')}
+                                        label={(value.user ? value.user.firstName : value.user) + ' ' + (value.user ? value.user.lastName : '')}
                                     />
                                 </ListItemAvatar>
 
@@ -190,7 +301,7 @@ export default function ManageContact() {
                                     </Stack>
                                 }
 
-                                <div onClick={() => handleStatus(value._id)} style={{ cursor: 'pointer', marginLeft: '10px', display: 'grid' }}>
+                                <div onClick={() => (!value.to) && handleStatus(value._id)} style={{ cursor: 'pointer', marginLeft: '10px', display: 'grid' }}>
                                     <Divider variant="middle" component="li" />
                                     <ListItemText
                                         primary={
@@ -220,29 +331,36 @@ export default function ManageContact() {
 
                                     />
                                 </div>
-                                {
-                                    (!(value.isSubmit) && (!(value.reply))) ?
-                                        <IconButton
-                                            edge="end"
-                                            aria-label="comments"
-                                            sx={{ marginLeft: 'auto' }}
-                                            onClick={() => handleCommentIconClick(value._id)}>
-                                            <CommentIcon />
-                                        </IconButton> :
-                                        <IconButton
-                                            edge="end"
-                                            aria-label="comments"
-                                            sx={{ marginLeft: 'auto' }}
-                                        >
-                                            <TaskAltIcon />
-                                        </IconButton>
+                                {(!value.to && !value.replyContent) ?
+                                    <IconButton
+                                        edge="end"
+                                        aria-label="comments"
+                                        sx={{ marginLeft: 'auto' }}
+                                        onClick={() => (!(value.isSubmit) && (!(value.reply))) && handleCommentIconClick(value._id)}>
+                                        {(!(value.isSubmit) && (!(value.reply))) ? <CommentIcon /> : <TaskAltIcon />}
+                                    </IconButton> :
+                                    <button style={{ marginLeft: 'auto', marginRight: 0, display: 'flex' }} onClick={() => { value.reply && handleStatusReply(value._id) }}>
+                                        <div style={{ marginLeft: 'auto', marginRight: 0 }}>
+                                            <Typography variant="body2" >To:</Typography>
+                                            <ForwardToInboxIcon />
+                                        </div>
+                                        <ListItemAvatar sx={{ marginRight: 0 }}>
+                                            <Chip sx={{
+                                                m: 1,
+                                                width: '150px', // Adjust the width value according to your preference
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                bgcolor: mapFirstLetterToColor(value.to.firstName[0]),
+                                            }}
+                                                avatar={<Avatar>{value.to.firstName[0]}</Avatar>}
+                                                label={(value.to.firstName) + ' ' + (value.to.lastName)} />
+                                        </ListItemAvatar>
+                                    </button>
                                 }
+                            </ListItem >
 
-
-
-                            </ListItem>
-
-                            {!value.reply && selectedCommentId === value._id && (
+                            {!value.reply && selectedCommentId === value._id && !value.to ? (
                                 <Grid container alignItems="center" justifyContent="flex-end">
                                     <Grid item xs={11}>
                                         <TextField
@@ -270,7 +388,16 @@ export default function ManageContact() {
                                         </Button>
                                     </Grid>
                                 </Grid>
-                            )}
+                            ) : selectedCommentId === value._id ?
+                                <div style={{ textAlign: 'left' }}>
+                                    <Chip
+                                        avatar={<Avatar alt="Natacha" src="" />}
+                                        label={value.user.firstName}
+                                        variant="outlined"
+                                        sx={{ color: '#0c88de', marginRight: '20px' }} />
+                                    {value.reply}
+                                </div> : ""
+                            }
                         </>
                     );
                 })}

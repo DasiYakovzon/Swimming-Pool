@@ -41,6 +41,25 @@ export class CommentsService {
 
   }
 
+  async createFromManger(data: any, token: string) {
+    try {
+      const { content, email } = data;
+      const user_id = token ? await this.getUserIdFromToken(token) : undefined;
+      const userId = await this.usersService.findOneByEmail(email);
+
+      if (user_id) {
+        const comment = new this.CommentsModel({ user: user_id, to: userId, content, date: new Date() });
+        await comment.save();
+        return comment;
+      }
+    }
+    catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+
+  }
+
 
   private async getUserIdFromToken(token: string): Promise<User | undefined> {
     try {
@@ -66,6 +85,7 @@ export class CommentsService {
       const comments = await this.CommentsModel
         .find()
         .populate('user')
+        .populate({ path: 'to' }) // Populate the 'to' field if it exists
         .sort({ date: -1 }) // Sort in descending order based on the 'date' field
         .limit(20) // Limit the results to 20 comments
         .exec();
@@ -81,7 +101,7 @@ export class CommentsService {
       const decodedToken = await this.authService.decoded(token);
       const user_id = await this.usersService.findOneByEmail(decodedToken['email']);      // const comments = await this.CommentsModel.find({ status: status.new }).populate('user').exec();
       const comments = await this.CommentsModel
-        .find({ user: user_id, statusReply: status.new })
+        .find({ $or: [{ user: user_id, statusReply: status.new }, { to: user_id }] })
         .count()
         .exec();
       return comments;
@@ -112,7 +132,7 @@ export class CommentsService {
   }
 
   async getCommentAndReply(token: string) {
-   
+
     try {
       const decodedToken = await this.authService.decoded(token);
 
@@ -121,7 +141,8 @@ export class CommentsService {
 
       // Fetch comments that belong to the identified user
       const comments = await this.CommentsModel
-        .find({ user: user_id }) // Assuming user._id is the correct reference
+        .find({ $or: [{ user: user_id, to: { $exists: false } }, { to: user_id }] }) // Assuming user._id is the correct reference
+        .populate({ path: 'to' })
         .sort({ date: -1 })// Sort by date in descending order (newest first)
         .exec();
 

@@ -303,6 +303,23 @@ export const getCoursesType = async () => {
     }
 }
 
+export const deleteCourse = async (id: string) => {
+    try {
+        const res = await api.delete(`${config.api}/course/${id}`, {
+            headers: { 'authorization': GetCookie() }
+        });
+
+        console.log(res.data);
+
+        return res.status;
+
+    }
+    catch (err: any) {
+        return err?.response?.status;
+    }
+    ;
+}
+
 
 export const getEnrollment = async (courseId: string) => {
     try {
@@ -393,6 +410,23 @@ export const getSchedule = async (date: Date) => {
 export const addComment = async (data: any) => {
     try {
         const res = await api.post(`${config.api}/comments/add`, { data }, {
+            headers: {
+                authorization: GetCookie(),
+            },
+        });
+        console.log(res.data);
+
+        return res.status;
+    } catch (error: any) {
+        console.error('Error:', error);
+        console.log('Response status:', error?.response?.status);
+        return error?.response?.status;
+    }
+}
+
+export const addCommentFromManger = async (data: any) => {
+    try {
+        const res = await api.post(`${config.api}/comments/addFromManger`, { data }, {
             headers: {
                 authorization: GetCookie(),
             },

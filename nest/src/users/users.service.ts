@@ -90,7 +90,7 @@ export class UsersService {
                 { new: true }
             );
         }
-           
+
         const decodedToken = await this.authService.decoded(token);
         const user = await this.findUserByEmail(decodedToken['email']);
         try {
@@ -162,7 +162,7 @@ export class UsersService {
 
 
     async deleteUser(id: string) {
-       return  await this.UserModel.findByIdAndDelete(id);
+        return await this.UserModel.findByIdAndDelete(id);
     }
 }
 
